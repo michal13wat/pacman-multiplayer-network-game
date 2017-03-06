@@ -18,7 +18,7 @@ public class Game
 {
     class GameObjectComparator implements Comparator<GameObject>
     {
-        // A private class made for sorting objects by depth.
+        // TESTING CHANGES DIFF
         
         @Override
         public int compare(GameObject obj1, GameObject obj2)
