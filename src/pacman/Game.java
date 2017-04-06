@@ -610,10 +610,10 @@ public class Game
     }
     
     public static void main(String[] args)
-    {
-        Game new_game = new Game();
-        new_game.init();
-    }
+{
+    Game new_game = new Game();
+    new_game.init();
+}
     
     private JFrame gameWindow;
     private JPanel gameRenderer;
