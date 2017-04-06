@@ -40,6 +40,8 @@ public class Game
         startingLives = new IntWrapper(3);
         numberOfGhost = new IntWrapper(4);
         isPacmanPlayed = new IntWrapper(0);
+        ipString = new StringWrapper("192168110");
+        portString = new StringWrapper("8080");
         
         objectList = new ArrayList();
         
@@ -114,6 +116,7 @@ public class Game
             case "escape": return escapePressed;
             case "enter": return enterPressed;
             case "q": return qPressed;
+            case "backspace": return backspacePressed;
         }
         
         return false;
@@ -129,8 +132,14 @@ public class Game
             case "escape": return escapeHold;
             case "enter": return enterHold;
             case "q": return qHold;
+            case "backspace": return backspaceHold && (backspaceHoldCounter > 0);
         }
         return false;
+    }
+    
+    public char keyboardCharCheck() {
+        if (prevKeyChar == keyChar) return 0;
+        return keyChar;
     }
     
     public void gotoMenu(String which){
@@ -272,8 +281,7 @@ public class Game
         }
     }
     
-    private void startMenu()
-    {
+    private void startMenu() {
         MenuObject startMenu = (MenuObject)createObject(MenuObject.class);
         startMenu.setFont("/resources/pac_font_sprites.png",8,8);
         startMenu.setTitle("PACMAN");
@@ -297,8 +305,7 @@ public class Game
                 }, "q" );
     }
     
-    private void stageSelectMenu()
-    {
+    private void stageSelectMenu() {
         MenuObject stageSelectMenu = (MenuObject)createObject(MenuObject.class);
         stageSelectMenu.setFont("/resources/pac_font_sprites.png",8,8);
         stageSelectMenu.setTitle("STAGE SELECT");
@@ -364,13 +371,13 @@ public class Game
                 }, "q" );
     }
     
-    private void serverSetupMenu()
-    {
+    private void serverSetupMenu() {
         MenuObject menu = (MenuObject)createObject(MenuObject.class);
         menu.setFont("/resources/pac_font_sprites.png",8,8);
         menu.setTitle("IP SETUP");
         
-        menu.addStringInputOption("Server IP: ",null,testString,5);
+        menu.addNumberInputOption("IP: ",null,ipString,"xxx.xxx.x.xx",9);
+        menu.addNumberInputOption("Port: ",null,portString,null,4);
         menu.addMenuOption("Create Game",null);
         menu.addMenuOption("Join Game",null);
         
@@ -415,6 +422,7 @@ public class Game
 
             @Override
             public void keyPressed(KeyEvent e) {
+                keyChar = e.getKeyChar();
                 switch (e.getKeyCode()) {
                     case (KeyEvent.VK_LEFT): leftPressed = true;
                         break;
@@ -430,11 +438,14 @@ public class Game
                         break;
                     case (KeyEvent.VK_Q): qPressed = true; 
                         break;
+                    case (KeyEvent.VK_BACK_SPACE): backspacePressed = true; 
+                        break;
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
+                if (keyChar == e.getKeyChar()) keyChar = 0;
                 switch (e.getKeyCode()) {
                     case (KeyEvent.VK_LEFT): leftPressed = false; 
                         break;
@@ -450,12 +461,19 @@ public class Game
                         break;
                     case (KeyEvent.VK_Q): qPressed = false;
                         break;
+                    case (KeyEvent.VK_BACK_SPACE): backspacePressed = false; 
+                        break;
                 }
             }
         });
     }
     
     private void keyboardSetHold() {
+        if ((!backspaceHold) && (backspacePressed))  backspaceHoldCounter = 20;
+        else {
+            if (backspaceHoldCounter > 0) backspaceHoldCounter--;
+        }
+        
         leftHold = leftPressed;
         rightHold = rightPressed;
         upHold = upPressed;
@@ -463,6 +481,9 @@ public class Game
         escapeHold = escapePressed;
         enterHold = enterPressed;
         qHold = qPressed;
+        backspaceHold = backspacePressed;
+        
+        prevKeyChar = keyChar;
     }
     
     
@@ -484,7 +505,8 @@ public class Game
     private int framesSkip;
     private int max_render_skip;
     
-    private String testString = "TEST";
+    private StringWrapper ipString;
+    private StringWrapper portString;
     
     private IntWrapper isPacmanPlayed;
     private IntWrapper numberOfGhost;
@@ -496,6 +518,7 @@ public class Game
     private boolean escapePressed;
     private boolean enterPressed;
     private boolean qPressed;
+    private boolean backspacePressed;
     
     private boolean leftHold;
     private boolean rightHold;
@@ -504,6 +527,11 @@ public class Game
     private boolean escapeHold;
     private boolean enterHold;
     private boolean qHold;
+    private boolean backspaceHold;
+    private int backspaceHoldCounter;
+    
+    private char prevKeyChar;
+    private char keyChar;
     
     private int gameScore;
     private int gameLives;

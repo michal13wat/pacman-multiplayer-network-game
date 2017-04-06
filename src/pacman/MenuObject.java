@@ -45,22 +45,70 @@ public class MenuObject extends GameObject {
     private class StringInputOption extends MenuOption {
         // Modifies a tied string.
         
-        public void setMenuOption(String name, Callable function, String value, int limit) {
+        public void setMenuOption(String name, Callable function, StringWrapper value, String regex, int limit) {
             super.setMenuOption(name, function);
             this.value = value;
+            this.regex = regex;
             this.limit = limit;
         }
         
-        public String getValue() {
+        public StringWrapper getWrapper() {
             return value;
+        }
+        
+        public String getStringWithRegex() {
+            if (regex == null) {return getWrapper().value;}
+            
+            String s = "", val = getWrapper().value;
+            
+            int k = 0;
+            for (int j = 0; j < val.length(); j++)
+            {
+                if ((k < regex.length()) && (regex.charAt(k) != ('x'))) {
+                    s += regex.charAt(k);
+                    j--;
+                }
+                else
+                    s += val.charAt(j);
+                k++;
+                System.out.println(s);
+            }
+            
+            return s;
+        }
+        
+        public int getRegexLength() {
+            if (regex == null) return 0;
+            int l = 0;
+            for (int i = 0; i < regex.length(); i++) {
+                if (regex.charAt(i) != 'x') l++;
+            }
+            return l;
         }
         
         public int getLimit() {
             return limit;
         }
         
-        protected String value;
+        public boolean canAcceptChar(char c)
+        {
+            return (((c >= 'a') && (c <= 'z'))
+                || ((c >= 'A') && (c <= 'Z'))
+                || ((c >= '0') && (c <= '9')));
+        }
+        
+        protected StringWrapper value;
+        protected String regex;
         protected int limit;
+    }
+    
+    private class NumberInputOption extends StringInputOption {
+        // A similar option, but this one only accepts numbers.
+        
+        @Override
+        public boolean canAcceptChar(char c) {
+            return ((c >= '0') && (c <= '9'));
+        }
     }
     
     private class SpinnerOption extends MenuOption {
@@ -153,10 +201,15 @@ public class MenuObject extends GameObject {
         MenuOption m = myOptions.get(cursorPos);
         
         // Keyboard input.
-        if (m instanceof StringInputOption)
-        {
-            //StringInputOption oo = (StringInputOption)m;
-            
+        if (m instanceof StringInputOption) {
+            StringInputOption oo = (StringInputOption)m;
+            StringWrapper s = oo.getWrapper();
+            char c = game.keyboardCharCheck();
+            // Deleting and adding characters.
+            if ((game.keyboardCheck("backspace")) && !(game.keyboardHoldCheck("backspace")) && (s.value.length() > 0))
+                s.value = s.value.substring(0,s.value.length()-1);
+            else if ((c != 0) && (oo.canAcceptChar(c)) && (s.value.length() < oo.getLimit()))
+                s.value += c;
         }
         
         // Choosing an option with Enter.
@@ -221,7 +274,7 @@ public class MenuObject extends GameObject {
             height = drawOption(g,o,i,height);
         }
     }
-
+    
     // Public methods for adding new options:
     
     public void addMenuOption(String name, Callable newFunction) {
@@ -236,9 +289,15 @@ public class MenuObject extends GameObject {
         hiddenOptions.add(o);
     }
 
-    public void addStringInputOption(String name, Callable newFunction, String value, int limit) {
+    public void addStringInputOption(String name, Callable newFunction, StringWrapper value, String regex, int limit) {
         StringInputOption o = new StringInputOption();
-        o.setMenuOption(name,newFunction,value,limit);
+        o.setMenuOption(name,newFunction,value,regex,limit);
+        myOptions.add(o);
+    }
+    
+    public void addNumberInputOption(String name, Callable newFunction, StringWrapper value, String regex, int limit) {
+        NumberInputOption o = new NumberInputOption();
+        o.setMenuOption(name,newFunction,value,regex,limit);
         myOptions.add(o);
     }
     
@@ -286,9 +345,9 @@ public class MenuObject extends GameObject {
         else if (o instanceof StringInputOption) {
             // Drawing the input string.
             StringInputOption io = (StringInputOption)o;
-            String s = "";
-            s = s + io.getValue();
-            if ((counter%20 < 10) && (cursorPos == i)) s = s + "-";
+            String s = io.getStringWithRegex();
+            
+            if ((counter%20 < 10) && (cursorPos == i)) s = s + "_";
             
             renderer.setPostfix(s);
         }
@@ -365,11 +424,11 @@ public class MenuObject extends GameObject {
             
             if (o instanceof StringInputOption) {
                 StringInputOption oo = (StringInputOption)o;
-                l += oo.getLimit();
+                l += oo.getLimit() + oo.getRegexLength();
             }
             else if (o instanceof ImageSpinnerOption) {
                 ImageSpinnerOption oo = (ImageSpinnerOption)o;
-                l += oo.getMaxWidth()/fontWidth;
+                l += oo.getMaxWidth()/fontWidth+2;
             }
             
             if (l > max)

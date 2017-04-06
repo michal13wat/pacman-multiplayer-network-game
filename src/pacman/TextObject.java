@@ -93,6 +93,7 @@ public class TextObject extends GameObject {
             case '=': return new Point(18,3);
             case '>': return new Point(19,3);
             case '?': return new Point(20,3);
+            case '_': return new Point(25,2);
             case '`': return new Point(21,3); // Special character for Pacman symbol.
         }
         
