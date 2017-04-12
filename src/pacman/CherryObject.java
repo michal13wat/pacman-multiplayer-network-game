@@ -4,8 +4,7 @@ package pacman;
 public class CherryObject extends CollectibleObject
 {
     @Override
-    public void createEvent()
-    {
+    public void createEvent() {
         super.createEvent();
         
         pointReward = 8;
@@ -16,21 +15,12 @@ public class CherryObject extends CollectibleObject
     }
     
     @Override
-    public void stepEvent()
-    {
-        if (counter%40>=20)
-        {subimageIndex = 1;}
-        else
-        {subimageIndex = 0;}
+    public void stepEvent() {
+        if (counter%40>=20) subimageIndex = 1;
+        else subimageIndex = 0;
         
-        if (counter > lifetime)
-        {
-            destroy();
-        }
-        else if (counter > lifetime*3/4)
-        {
-            visible = !visible;
-        }
+        if (counter > lifetime) destroy();
+        else if (counter > lifetime*3/4) visible = !visible;
         
         counter ++;
     }

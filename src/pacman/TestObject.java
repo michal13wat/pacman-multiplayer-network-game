@@ -1,11 +1,9 @@
 
 package pacman;
 
-public class TestObject extends ActiveObject
-{
+public class TestObject extends ActiveObject {
     @Override
-    public void createEvent()
-    {
+    public void createEvent() {
         x = (int)(System.currentTimeMillis()/100)%512;
         y = 120;
         
@@ -15,10 +13,8 @@ public class TestObject extends ActiveObject
     }
     
     @Override
-    public void stepEvent()
-    {
-        if ((y > 224) && (yspeed > 0))
-        {
+    public void stepEvent() {
+        if ((y > 224) && (yspeed > 0)) {
             y = 224;
             yspeed = -yspeed/1.01;
         }

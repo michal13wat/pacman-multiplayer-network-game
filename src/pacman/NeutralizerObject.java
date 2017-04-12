@@ -3,11 +3,9 @@ package pacman;
 
 import java.util.ArrayList;
 
-public class NeutralizerObject extends CollectibleObject
-{
+public class NeutralizerObject extends CollectibleObject {
     @Override
-    public void createEvent()
-    {
+    public void createEvent() {
         super.createEvent();
         
         pointReward = 0;
@@ -17,15 +15,13 @@ public class NeutralizerObject extends CollectibleObject
     }
     
     @Override
-    public void stepEvent()
-    {
+    public void stepEvent() {
         subimageIndex = (counter%30)/10.0;
         counter ++;
     }
     
     @Override
-    public void getCollected(CharacterObject obj)
-    {
+    public void getCollected(CharacterObject obj) {
         super.getCollected(obj);
         
         // Make all ghosts scared.
@@ -33,8 +29,7 @@ public class NeutralizerObject extends CollectibleObject
         ArrayList<GameObject> l = game.getAllObjects(GhostObject.class);
         GhostObject o = null;
         
-        for (int i = 0; i < l.size(); i ++)
-        {
+        for (int i = 0; i < l.size(); i ++) {
             o = (GhostObject)l.get(i);
             o.scare(300);
         }

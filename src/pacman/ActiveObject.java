@@ -9,11 +9,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
-abstract public class ActiveObject extends GameObject
-{
+abstract public class ActiveObject extends GameObject {
     @Override
-    public void createEvent()
-    {
+    public void createEvent(){
         // Variable initialization.
         tangible = true;
         visible = true;
@@ -39,35 +37,28 @@ abstract public class ActiveObject extends GameObject
     }
     
     @Override
-    public void stepEvent()
-    {
+    public void stepEvent() {
         firstStep = false;
         counter ++;
         
         moveObject();
         
-        if (wraparoundEnabled)
-        {
+        if (wraparoundEnabled) {
             x = wraparound(x,false);
             y = wraparound(y,true);
         }
     }
     
     @Override
-    public void drawEvent(Graphics2D g)
-    {
-        if ((visible == false) || (destroyed == true))
-        {return;}
+    public void drawEvent(Graphics2D g) {
+        if ((visible == false) || (destroyed == true)) return;
         
-        if (spriteSheet == null)
-        {
+        if (spriteSheet == null) {
             g.setColor(Color.WHITE);
             g.fillRect(screenCenterX+(int)(scaleMod*(x+xorigin)),(int)(scaleMod*(y+yorigin)),16,16);
         }
-        else
-        {
-            if (wraparoundEnabled)
-            {
+        else {
+            if (wraparoundEnabled){
                 int xoverflow = collisionMap.getWidth()-(x+imageWidth);
                 int yoverflow = collisionMap.getHeight()-(y+imageHeight);
                 
@@ -76,28 +67,27 @@ abstract public class ActiveObject extends GameObject
                 drawSpriteChopped(g,0,y,bounds(0,xoverflow+imageWidth,imageWidth),0,imageWidth,imageHeight);
                 drawSpriteChopped(g,0,0,bounds(0,xoverflow+imageWidth,imageWidth),bounds(0,yoverflow+imageHeight,imageHeight),imageWidth,imageHeight);
             }
-            else
-            {drawSpriteFull(g);}
+            else drawSpriteFull(g);
         }
     }
     
     @Override
-    public void destroyEvent()
-    {
+    public void destroyEvent() {
         //
     }
     
-    public void loadSpriteSheet(String source, int imageWidth, int imageHeight)
-    {
+    public void loadSpriteSheet(String source, int imageWidth, int imageHeight) {
         // Changes the destination spritesheet.
         
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         
-        try
-        {spriteSheet = ImageIO.read(getClass().getResource(source));}
-        catch (IOException i)
-        {spriteSheet = null;}
+        try {
+            spriteSheet = ImageIO.read(getClass().getResource(source));
+        }
+        catch (IOException i) {
+            spriteSheet = null;
+        }
         
         bboxLeft = 0;
         bboxRight = imageWidth;
@@ -105,13 +95,11 @@ abstract public class ActiveObject extends GameObject
         bboxBottom = imageHeight;
     }
     
-    protected void drawSpriteFull(Graphics2D g)
-    {
+    protected void drawSpriteFull(Graphics2D g) {
         drawSprite(g,spriteSheet,x,y,subimageIndex,imageIndex,imageWidth,imageHeight);
     }
         
-    protected void drawSpriteChopped(Graphics2D g, int x, int y, int x1, int y1, int x2, int y2)
-    {
+    protected void drawSpriteChopped(Graphics2D g, int x, int y, int x1, int y1, int x2, int y2) {
         g.drawImage(
             spriteSheet,
             (int)(scaleMod*(x+xorigin))+screenCenterX,
@@ -123,81 +111,63 @@ abstract public class ActiveObject extends GameObject
             null);
     }
     
-    protected ActiveObject getColliding(Class ourClass)
-    {
+    protected ActiveObject getColliding(Class ourClass) {
         // Returns an ActiveObject of the argument class that we're colliding with.
         // If there are none, returns null.
         
         ArrayList<GameObject> l = game.getAllObjects(ourClass);
         ActiveObject obj;
         
-        for (int i = 0; i < l.size(); i++)
-        {
+        for (int i = 0; i < l.size(); i++) {
             obj = (ActiveObject)l.get(i);
-            if ((obj.isTangible()) && (!obj.isDestroyed()) && (collisionCheck(obj)))
-            {
-                return obj;
-            }
+            if ((obj.isTangible()) && (!obj.isDestroyed()) && (collisionCheck(obj))) return obj;
         }
         
         return null;
     }
     
-    protected boolean collisionCheck(int xcheck, int ycheck)
-    {
+    protected boolean collisionCheck(int xcheck, int ycheck) {
         // Simple square collision check, based on imageWidth/imageHeight.
         // Not very precise.
         
-        if ((wallContact == false) || (collisionMap == null))
-        {return false;}
+        if ((wallContact == false) || (collisionMap == null)) return false;
         
         int i = bboxLeft, j;
         
-        while (i < bboxRight)
-        {
+        while (i < bboxRight) {
             j = bboxTop;
             
-            while (j < bboxBottom)
-            {
-                if (collisionMap.checkCollisionScaled(
-                    wraparound(xcheck+i,false),wraparound(ycheck+j,true)))
-                {return true;}
+            while (j < bboxBottom) {
+                if (collisionMap.checkCollisionScaled(wraparound(xcheck+i,false),wraparound(ycheck+j,true)))
+                    return true;
                 
-                if (j == bboxBottom-1)
-                {j = bboxBottom;}
-                else
-                {j = (int)Math.min(j+(bboxBottom-bboxTop-1)/2,bboxBottom-1);}
+                if (j == bboxBottom-1) j = bboxBottom;
+                else j = (int)Math.min(j+(bboxBottom-bboxTop-1)/2,bboxBottom-1);
             }
             
-            if (i == bboxBottom-1)
-            {i = bboxRight;}
-            else
-            {i = (int)Math.min(i+(bboxRight-bboxLeft-1)/2,bboxRight-1);}
+            if (i == bboxBottom-1) i = bboxRight;
+            else i = (int) Math.min(i+(bboxRight-bboxLeft-1)/2,bboxRight-1);
         }
         
         return false;
     }
     
-    protected boolean collisionCheck(ActiveObject other)
-    {
+    protected boolean collisionCheck(ActiveObject other) {
         // Geometric test for collision with another object.
         
-        if ((other == null) || (other == this))
-        {return false;}
+        if ((other == null) || (other == this)) return false;
         
         if ((x+this.bboxRight-1 >= other.getX()+other.getBbox("left"))
-        && (x+this.bboxLeft <= other.getX()+other.getBbox("right")-1))
-        {
+            && (x+this.bboxLeft <= other.getX()+other.getBbox("right")-1)) {
             if ((y+this.bboxTop <= other.getY()+other.getBbox("bottom")-1)
-            && (y+this.bboxBottom-1 >= other.getY()+other.getBbox("top")))
-            {return true;}
+                    && (y+this.bboxBottom-1 >= other.getY()+other.getBbox("top")))
+                return true;
         }
         
         return false;
     }
     
-    protected void moveObject()
-    {
+    protected void moveObject() {
         // General movement code.
         // Avoids non-integer position.
         
@@ -209,39 +179,32 @@ abstract public class ActiveObject extends GameObject
         xadd += xspeed;
         yadd += yspeed;
         
-        while (Math.abs(xadd) >= 1)
-        {
-            if (collisionCheck(x+(int)Math.signum(xadd),y))
-            {
+        while (Math.abs(xadd) >= 1) {
+            if (collisionCheck(x+(int)Math.signum(xadd),y)) {
                 hitWall(false);
                 xadd = 0;
             }
-            else
-            {
+            else {
                 x += (int)Math.signum(xadd);
                 xadd = approach(xadd,0,1);
                 
                 if (((!collisionCheck(x,y-1)) && (!openOnTop))
-                  || ((!collisionCheck(x,y+1)) && (!openOnBottom)))
-                {passedEntrance(true);}
+                        || ((!collisionCheck(x,y+1)) && (!openOnBottom)))
+                    passedEntrance(true);
             }
         }
         
-        while (Math.abs(yadd) >= 1)
-        {
-            if (collisionCheck(x,y+(int)Math.signum(yadd)))
-            {
+        while (Math.abs(yadd) >= 1) {
+            if (collisionCheck(x,y+(int)Math.signum(yadd))) {
                 hitWall(true);
                 yadd = 0;
             }
-            else
-            {
+            else {
                 y += (int)Math.signum(yadd);
                 yadd = approach(yadd,0,1);
                 
                 if (((!collisionCheck(x-1,y)) && (!openOnLeft))
-                  || ((!collisionCheck(x+1,y)) && (!openOnRight)))
-                {passedEntrance(false);}
+                  || ((!collisionCheck(x+1,y)) && (!openOnRight))) passedEntrance(false);
             }
         }
         
@@ -249,39 +212,29 @@ abstract public class ActiveObject extends GameObject
         yspeed += ypull;
     }
     
-    protected int wraparound(int coord, boolean isVertical)
-    {
+    protected int wraparound(int coord, boolean isVertical) {
         // This one returns a "wrapped" coordinate, so that it
         // never goes outside the map.
         
-        if ((wraparoundEnabled == true) && (collisionMap != null))
-        {
-            if (isVertical)
-            {
-                if (coord > collisionMap.getHeight())
-                {return coord-collisionMap.getHeight();}
-                else if (coord < 0)
-                {return coord+collisionMap.getHeight();}
+        if ((wraparoundEnabled == true) && (collisionMap != null)) {
+            if (isVertical) {
+                if (coord > collisionMap.getHeight()) return coord-collisionMap.getHeight();
+                else if (coord < 0) return coord+collisionMap.getHeight();
             }
-            else
-            {
-                if (coord > collisionMap.getWidth())
-                {return coord-collisionMap.getWidth();}
-                else if (coord < 0)
-                {return coord+collisionMap.getWidth();}
+            else {
+                if (coord > collisionMap.getWidth()) return coord-collisionMap.getWidth();
+                else if (coord < 0) return coord+collisionMap.getWidth();
             }
         }
         
         return coord;
     }
     
-    protected void hitWall(boolean isVertical)
-    {
+    protected void hitWall(boolean isVertical) {
         //
     }
     
-    protected void passedEntrance(boolean isVertical)
-    {
+    protected void passedEntrance(boolean isVertical) {
         //
     }
     
@@ -295,38 +248,31 @@ abstract public class ActiveObject extends GameObject
     protected boolean openOnLeft, openOnTop, openOnRight, openOnBottom;
     
     protected boolean wallContact, wraparoundEnabled;
-    protected boolean tangible, visible;
+    protected boolean tangible;
     
-    public int getBbox(String loc)
-    {
-        if (loc.equals("left")) {
-            return bboxLeft;
-        } else if (loc.equals("right")) {
-            return bboxRight;
-        } else if (loc.equals("top")) {
-            return bboxTop;
-        } else if (loc.equals("bottom")) {
-            return bboxBottom;
+    public int getBbox(String loc) {
+        switch (loc) {
+            case "left": return bboxLeft;
+            case "right": return bboxRight;
+            case "top": return bboxTop;
+            case "bottom": return bboxBottom;
         }
         
         return 0;
     }
     
-    public boolean isTangible()
-    {
+    public boolean isTangible() {
         return tangible;
     }
     
-    public void setMotion(double xspeed, double yspeed)
-    {
+    public void setMotion(double xspeed, double yspeed) {
         this.xspeed = xspeed;
         this.yspeed = yspeed;
         this.xadd = 0;
         this.yadd = 0;
     }
     
-    public void setAcceleration(double xpull, double ypull)
-    {
+    public void setAcceleration(double xpull, double ypull) {
         this.xpull = xpull;
         this.ypull = ypull;
     }

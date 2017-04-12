@@ -12,11 +12,9 @@ import java.util.ArrayList;
 import java.io.*;
 import javax.imageio.ImageIO;
 
-public class LabyrinthObject extends GameObject
-{
+public class LabyrinthObject extends GameObject {
     @Override
-    public void createEvent()
-    {
+    public void createEvent() {
         x = 16;
         y = 16;
         
@@ -24,25 +22,20 @@ public class LabyrinthObject extends GameObject
     }
     
     @Override
-    public void stepEvent()
-    {
-        if (sourceFile == null)
-        {return;}
+    public void stepEvent() {
+        if (sourceFile == null) return;
         
         // Loading the stage.
-        if (counter == 0)
-        {labyrinthInit();}
+        if (counter == 0) labyrinthInit();
         
         // Victory.
-        if ((game.getAllObjects(DotObject.class).isEmpty()) && (finished == false))
-        {
+        if ((game.getAllObjects(DotObject.class).isEmpty()) && (finished == false)) {
             finished = true;
             
             ArrayList<GameObject> l = game.getAllObjects(GhostObject.class);
             GhostObject o = null;
             
-            for (int i = 0; i < l.size(); i ++)
-            {
+            for (int i = 0; i < l.size(); i ++) {
                 o = (GhostObject)l.get(i);
                 o.scare(9999);
             }
@@ -51,66 +44,58 @@ public class LabyrinthObject extends GameObject
         }
         
         // Exit.
-        if (game.keyboardCheck("q"))
-        {destroy();}
+        if (game.keyboardCheck("q")) {
+            game.setPlayedGhostCreated(false);
+            destroy();
+        }
         
         counter ++;
     }
     
     @Override
-    public void drawEvent(Graphics2D g)
-    {
-        if (scoreDisplay != null)
-        {scoreDisplay.setText(String.format("%03d",game.getScore()));}
-        if (livesDisplay != null)
-        {
+    public void drawEvent(Graphics2D g) {
+        if (scoreDisplay != null) scoreDisplay.setText(String.format("%03d",game.getScore()));
+        if (livesDisplay != null) {
             String s = "";
-            for (int i = 0; i < game.getLives(); i ++)
-            {s += "`";}
+            for (int i = 0; i < game.getLives(); i ++) s += "`";
             livesDisplay.setText(s);
         }
-        if (endDisplay != null)
-        {
+        if (endDisplay != null) {
             endDisplay.setText("");
-            if (counter%10 >= 5)
-            {
-                if (game.getAllObjects(DotObject.class).isEmpty())
-                {endDisplay.setText("YOU WIN !!!");}
-                if (game.getLives() == 0)
-                {endDisplay.setText("YOU LOSE !!!");}
+            if (counter%10 >= 5) {
+                if (game.getAllObjects(DotObject.class).isEmpty()){
+                    if (game.isPacmanPlayed())endDisplay.setText("YOU WIN !!!");
+                    else endDisplay.setText("YOU LOSE !!!");
+                } 
+                if (game.getLives() == 0) {
+                    if (game.isPacmanPlayed())endDisplay.setText("YOU LOSE !!!");
+                    else endDisplay.setText("YOU WIN !!!");
+                }
             }
         }
         
-        if (tileset == null)
-        {
+        if (tileset == null) {
             g.setColor(Color.WHITE);
-            for (int i = 0; i < width; i++)
-            for (int j = 0; j < height; j++)
-            {
-                if (collisionMap[i][j] == true)
-                {g.fillRect(x+sizeMod*i,y+sizeMod*j,16,16);}
+            for (int i = 0; i < width; i++){
+                for (int j = 0; j < height; j++) {
+                    if (collisionMap[i][j] == true) g.fillRect(x+sizeMod*i,y+sizeMod*j,16,16);
+                }
             }
         }
-        else
-        {
-            for (int i = 0; i < width; i++)
-            for (int j = 0; j < height; j++)
-            {
-                if (collisionMap[i][j] == true)
-                {
-                    drawBlock(g,i,j,getFragmentLocations(i,j));
+        else {
+            for (int i = 0; i < width; i++){
+                for (int j = 0; j < height; j++) {
+                    if (collisionMap[i][j]) drawBlock(g,i,j,getFragmentLocations(i,j));
                 }
             }
         }
     }
     
     @Override
-    public void destroyEvent()
-    {
+    public void destroyEvent() {
         ArrayList<GameObject> l = game.getAllObjects(GameObject.class);
         
-        for (int i = 0; i < l.size(); i ++)
-        {
+        for (int i = 0; i < l.size(); i ++) {
             l.get(i).destroy();
         }
         
@@ -119,31 +104,26 @@ public class LabyrinthObject extends GameObject
         livesDisplay.destroy();
         endDisplay.destroy();*/
         
-        game.gotoMenu("stage_select");
+        game.gotoMenu("start");
     }
     
-    public boolean checkCollision(int x, int y)
-    {
+    public boolean checkCollision(int x, int y) {
         return (collisionMap[bounds(0,x,width-1)][bounds(0,y,height-1)]);
     }
     
-    public boolean checkCollisionScaled(double x, double y)
-    {
+    public boolean checkCollisionScaled(double x, double y) {
         return (collisionMap
                 [bounds(0,(int)Math.floor(x/sizeMod),width-1)]
                 [bounds(0,(int)Math.floor(y/sizeMod),height-1)]);
     }
     
-    private void labyrinthInit()
-    {
+    private void labyrinthInit() {
         // Loading the necessary files.
-        try
-        {
+        try {
             sizeInput(new FileInputStream(sourceFile));
             layoutInput(new FileInputStream(sourceFile));
-        }
-        catch (FileNotFoundException e)
-        {
+        } catch (FileNotFoundException e) {
+            System.err.println("Error: File not found");
             destroy();
             return;
         }
@@ -166,186 +146,167 @@ public class LabyrinthObject extends GameObject
         game.setScore(0);
         game.setLives(game.getStartingLives());
 
-        try
-        {
+        try {
             tileset = ImageIO.read(getClass().getResource("/resources/pac_labyrinth_tileset.png"));
+        } catch (IOException i) {
+            tileset = null;
         }
-        catch (IOException i)
-        {tileset = null;}
     }
     
-    private void sizeInput(InputStream in)
-    {
+    private void sizeInput(InputStream in) {
         // Allocating the 2D array.
         
         int c, tmp_width = -1;
         width = -1;
         height = 1;
         
-        try
-        {
-            while ((c = in.read()) != '\n')
-            {/**/}
+        try {
+            while ((c = in.read()) != '\n') {/**/}
             
-            while ((c = in.read()) != -1)
-            {
-                if (c != '\n') // New character.
-                {
-                    if (width == -1)
-                    {tmp_width ++;}
+            while ((c = in.read()) != -1) {
+                // New character. 
+                if (c != '\n') {
+                    if (width == -1) tmp_width ++;
                 }
-                else // New line.
-                {
-                    if (width == -1)
-                    {width = tmp_width;}
+                // New line.
+                else {
+                    if (width == -1) width = tmp_width;
                     height ++;
                 }
             }
         
             collisionMap = new boolean[width][height];
-        }
-        catch (IOException i)
-        {
+        } catch (IOException i) {
             collisionMap = new boolean[1][1];
             collisionMap[0][0] = false;
         }
         
-        try
-        {in.close();}
-        catch (IOException i)
-        {return;}
+        try {
+            in.close();
+        } catch (IOException i) {
+            return;
+        }
     }
     
-    private void layoutInput(InputStream in)
-    {
+    private void layoutInput(InputStream in) {
         // Reading the labyrinth layout into the array.
         
         int c = 0;
         
-        try
-        {
+        try {
             labyrinthName = "";
-            while ((c = in.read()) != '\n')
-            {labyrinthName += Character.toString((char)c);}
+            while ((c = in.read()) != '\n') labyrinthName += Character.toString((char)c);
             
-            for (int j = 0; j < height; j++)
-            {
-                for (int i = 0; i < width; i++)
-                {
+            for (int j = 0; j < height; j++) {
+                for (int i = 0; i < width; i++) {
                     // By default, the square is empty.
                     c = in.read();
                     collisionMap[i][j] = false;
                     
                     switch (c)
                     {
-                        case '0': // Wall
-                        {collisionMap[i][j] = true;}
+                        // Wall 
+                        case '0': collisionMap[i][j] = true;
                         break;
                         
-                        case '-': // Small Point
-                        {createObject(DotObject.class,i,j);}
+                        // Small Point
+                        case '-': createObject(DotObject.class,i,j);
                         break;
                         
-                        case '+': // Neutralizer.
-                        {createObject(NeutralizerObject.class,i,j);}
+                        // Neutralizer. 
+                        case '+': createObject(NeutralizerObject.class,i,j);
                         break;
                         
-                        case '$': // Big Point Spawner
-                        {
+                        // Big Point Spawner 
+                        case '$': {
                             SpawnerObject o = (SpawnerObject)createObject(SpawnerObject.class,i,j);
                             o.setSpawner(CherryObject.class,1,600,450+450*j/height,true);
                         }
                         break;
                         
-                        case '#': // Pacman
-                        {createObject(PacmanObject.class,i,j);}
+                        // Pacman 
+                        case '#': createObject(PacmanObject.class,i,j);
                         break;
                         
-                        case '^': // Ghost Spawner
-                        {
+                        // Ghost Spawner 
+                        case '^': {
                             SpawnerObject o = (SpawnerObject)createObject(SpawnerObject.class,i,j);
-                            o.setSpawner(GhostObject.class,4,100,60,false);
+                            o.setSpawner(GhostObject.class,game.getNumberOfGhosts(),100,60,false);
                         }
                         break;
                     }
                 }
 
                 // The '\n' char.
-                while (c != -1)
-                {
-                    if ((c = in.read()) == '\n')
-                    {break;}
+                while (c != -1) {
+                    if ((c = in.read()) == '\n') break;
+                }
+            }
+        } catch (IOException i) {}
+        
+        try {
+            in.close();
+        } catch (IOException i) {
+            return;
+        }
+    }
+    
+    private ArrayDeque<Point> getFragmentLocations(int x, int y) {
+        ArrayDeque<Point> v = new ArrayDeque<>();
+        
+        for (int j = 0; j < 2; j++){
+            for (int i = 0; i < 2; i++) {
+                // Top/Bottom
+                if (checkCollision(x,y-1+2*j)) {
+                    // Top & Side
+                    if (checkCollision(x-1+2*i,y)) {
+                        // Solid 
+                        if (checkCollision(x-1+2*i,y-1+2*j)) v.add(new Point(6,0));
+                        // Little corner
+                        else v.add(new Point(4+i,0+j));
+                    }
+                    // Vertical Wall 
+                    else v.add(new Point(0+i,0+i));
+                }
+                // No Top
+                else {
+                    // Horizontal Wall 
+                    if (checkCollision(x-1+2*i,y)) v.add(new Point(1-j,0+j));
+                    // Big Corner 
+                    else v.add(new Point(2+i,0+j));
                 }
             }
         }
-        catch (IOException i)
-        {}
-        
-        try
-        {in.close();}
-        catch (IOException i)
-        {return;}
-    }
-    
-    private ArrayDeque<Point> getFragmentLocations(int x, int y)
-    {
-        ArrayDeque<Point> v = new ArrayDeque<Point>();
-        
-        for (int j = 0; j < 2; j++)
-            for (int i = 0; i < 2; i++)
-            {
-                if (checkCollision(x,y-1+2*j)) // Top/Bottom
-                {
-                    if (checkCollision(x-1+2*i,y)) // Top & Side
-                    {
-                        if (checkCollision(x-1+2*i,y-1+2*j)) // Solid
-                        {v.add(new Point(6,0));}
-                        else // Little corner
-                        {v.add(new Point(4+i,0+j));}
-                    }
-                    else // Vertical Wall
-                    {v.add(new Point(0+i,0+i));}
-                }
-                else // No Top
-                {
-                    if (checkCollision(x-1+2*i,y)) // Horizontal Wall
-                    {v.add(new Point(1-j,0+j));}
-                    else // Big Corner
-                    {v.add(new Point(2+i,0+j));}
-                }
-            }
         
         return v;
     }
     
-    private void drawBlock(Graphics2D g, int blockX, int blockY, ArrayDeque<Point> v)
-    {
+    private void drawBlock(Graphics2D g, int blockX, int blockY, ArrayDeque<Point> v) {
         // A composite block made from 4 8x8 elements.
         
         Point tmpPoint;
         int tilesetX, tilesetY;
         
-        for (int j = 0; j < 2; j++)
-        for (int i = 0; i < 2; i++)
-        {
-            tmpPoint = v.remove();
-            tilesetX = tmpPoint.x;
-            tilesetY = tmpPoint.y;
-            
-            g.drawImage(
-                tileset,
-                (int)(scaleMod*(x+sizeMod*(2*blockX+i)/2))+screenCenterX,
-                (int)(scaleMod*(y+sizeMod*(2*blockY+j)/2))+screenCenterY,
-                (int)(scaleMod*(x+sizeMod*(2*blockX+i+1)/2))+screenCenterX,
-                (int)(scaleMod*(y+sizeMod*(2*blockY+j+1)/2))+screenCenterY,
-                8*tilesetX,8*tilesetY,8*tilesetX+8,8*tilesetY+8,
-                null);
+        for (int j = 0; j < 2; j++){
+            for (int i = 0; i < 2; i++) {
+                tmpPoint = v.remove();
+                tilesetX = tmpPoint.x;
+                tilesetY = tmpPoint.y;
+
+                g.drawImage(
+                    tileset,
+                    (int)(scaleMod*(x+sizeMod*(2*blockX+i)/2))+screenCenterX,
+                    (int)(scaleMod*(y+sizeMod*(2*blockY+j)/2))+screenCenterY,
+                    (int)(scaleMod*(x+sizeMod*(2*blockX+i+1)/2))+screenCenterX,
+                    (int)(scaleMod*(y+sizeMod*(2*blockY+j+1)/2))+screenCenterY,
+                    8*tilesetX,8*tilesetY,8*tilesetX+8,8*tilesetY+8,
+                    null);
+            }
         }
     }
     
     @Override
-    protected GameObject createObject(Class ourClass, int i, int j)
-    {
+    protected GameObject createObject(Class ourClass, int i, int j) {
         // Calls upon the Game object.
         
         GameObject o = game.createObject(ourClass);
@@ -371,19 +332,16 @@ public class LabyrinthObject extends GameObject
     
     boolean finished = false;
     
-    public void setSource(File f)
-    {
+    public void setSource(File f) {
         sourceFile = f;
         counter = 0;
     }
     
-    public int getWidth()
-    {
+    public int getWidth() {
         return (width+1)*sizeMod;
     }
     
-    public int getHeight()
-    {
+    public int getHeight() {
         return (height+1)*sizeMod;
     }
     

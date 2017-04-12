@@ -12,77 +12,31 @@ import java.util.ArrayList;
 import java.io.*;
 
 import java.awt.event.*;
-import java.util.concurrent.Callable;
 
 public class Game
 {
-    class GameObjectComparator implements Comparator<GameObject>
-    {
+    class GameObjectComparator implements Comparator<GameObject> {
         // A private class made for sorting objects by depth.
         
         @Override
-        public int compare(GameObject obj1, GameObject obj2)
-        {
+        public int compare(GameObject obj1, GameObject obj2){
             int d1 = obj1.getDepth(), d2 = obj2.getDepth();
             
-            if (d1 > d2)
-            {return -1;}
-            else if (d1 < d2)
-            {return 1;}
-            else
-            {return 0;}
+            if (d1 > d2) return -1;
+            else if (d1 < d2) return 1;
+            else return 0; 
         }
     }
-
-    // MB >
-    class MenuHandling implements ActionListener, ItemListener {
-        public MenuHandling(){
-            menuItem.addActionListener(this);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            //...Get information from the action event...
-
-            // File
-            if (e.getActionCommand() == "Start"){
-                stop = false;
-            } else if (e.getActionCommand() == "Stop") {
-                stop = true;
-            } else if (e.getActionCommand() == "Wyjście"){
-                running = false;
-            }else
-                // Settings
-                if (e.getActionCommand() == "Konfiguracja serwera"){
-                    stop = true;
-                    serverConf = new ServerConfiguration();
-                }else if (e.getActionCommand() == "Konfiguracja gry"){
-                    stop = true;
-                    gameConf = new GameConfiguration();
-                    gameConf.refreshChoice();
-                /* TODO
-                * I don't know why when I call above methods it
-                * it throws exception. */
-                }
-
-        }
-
-        @Override
-        public void itemStateChanged(ItemEvent e) {
-            //...Get information from the item event...
-            //...Display it in the text area...
-            System.out.print("ItemEvent\n");
-            System.out.print(e.getItem());
-            System.out.print("\n");
-        }
-    }
-
-    // MB <
     
-    public void init()
-    {
+    public void init(){
         // Game parameters.
-        
+
+        sprites.add(new Sprite("/resources/pac_hero_sprites.png",0,0,16,16));
+        sprites.add(new Sprite("/resources/pac_ghost_sprites.png",0,0,16,16));
+        sprites.add(new Sprite("/resources/pac_ghost_sprites.png",0,1,16,16));
+        sprites.add(new Sprite("/resources/pac_ghost_sprites.png",0,2,16,16));
+        sprites.add(new Sprite("/resources/pac_ghost_sprites.png",0,3,16,16));
+
         running = true;
         
         framesPerSecond = 60;
@@ -90,147 +44,54 @@ public class Game
         max_render_skip = 10;
         
         startingLives = new IntWrapper(3);
+        numberOfGhost = new IntWrapper(4);
+        isPacmanPlayed = new IntWrapper(0);
+        ipString = new StringWrapper("192168110");
+        portString = new StringWrapper("8080");
         
-        objectList = new ArrayList<GameObject>();
+        objectList = new ArrayList();
         
         // Window init.
         windowInit(true);
         // Keyboard init.
         keyboardInit();
-
-        turnOnGame = true;
-//        while (true){
-//            if (turnOnGame){
-                gotoMenu("stage_select");
-//                System.out.print("asdf");
-//            } else{
-//                break;
-//            }
-//        }
+        
+        gotoMenu("start");
         //createObject(LabyrinthObject.class);
-
-        // MB >
-        //Create the menu bar.
-        menuBar = new JMenuBar();
-
-        //Build the first menu.
-        menu = new JMenu("Plik");
-        menu.setMnemonic(KeyEvent.VK_A);
-        menu.getAccessibleContext().setAccessibleDescription(
-                "The only menu in this program that has menu items");
-        menuBar.add(menu);
-
-        //File
-        menuItem = new JMenuItem("Start",
-                new  ImageIcon("/resources/pac_ghost_sprites.png"));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_1, ActionEvent.ALT_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription(
-                "This doesn't really do anything");
-        menu.add(menuItem);
-        menu.addActionListener(new MenuHandling());
-
-        menuItem = new JMenuItem("Stop",
-                new ImageIcon("resources/menu_icons/Exit.png"));
-        menuItem.setMnemonic(KeyEvent.VK_B);
-        menu.add(menuItem);
-        menu.addActionListener(new MenuHandling());
-
-        menu.addSeparator();
-
-        menuItem = new JMenuItem("Wyjście",
-                new ImageIcon("/resources/menu_icons/Exit.png"));
-        menuItem.setMnemonic(KeyEvent.VK_B);
-        menu.add(menuItem);
-        menu.addActionListener(new MenuHandling());
-
-        //Settings.
-        menu = new JMenu("Ustawienia");
-        menu.setMnemonic(KeyEvent.VK_N);
-        menu.getAccessibleContext().setAccessibleDescription(
-                "This menu does nothing");
-        menuBar.add(menu);
-
-        menuItem = new JMenuItem("Konfiguracja serwera",
-                new ImageIcon("/resources/menu_icons/Exit.png"));
-        menuItem.setMnemonic(KeyEvent.VK_B);
-        menu.add(menuItem);
-        menu.addActionListener(new MenuHandling());
-
-        menuItem = new JMenuItem("Konfiguracja gry",
-                new ImageIcon("/resources/menu_icons/Exit.png"));
-        menuItem.setMnemonic(KeyEvent.VK_B);
-        menu.add(menuItem);
-        menu.addActionListener(new MenuHandling());
-
-        // Help
-        menu = new JMenu("Pomoc");
-        menu.setMnemonic(KeyEvent.VK_N);
-        menu.getAccessibleContext().setAccessibleDescription(
-                "This menu does nothing");
-        menuBar.add(menu);
-
-        menuItem = new JMenuItem("Jak w to grać?",
-                new ImageIcon("/resources/menu_icons/Exit.png"));
-        menuItem.setMnemonic(KeyEvent.VK_B);
-        menu.add(menuItem);
-        menu.addActionListener(new MenuHandling());
-
-        menuItem = new JMenuItem("O programie",
-                new ImageIcon("/resources/menu_icons/Exit.png"));
-        menuItem.setMnemonic(KeyEvent.VK_B);
-        menu.add(menuItem);
-        menu.addActionListener(new MenuHandling());
-
-        menuItem = new JMenuItem("Wspomóż autorów",
-                new ImageIcon("/resources/menu_icons/Exit.png"));
-        menuItem.setMnemonic(KeyEvent.VK_B);
-        menu.add(menuItem);
-        menu.addActionListener(new MenuHandling());
-
-        gameWindow.setJMenuBar(menuBar);
-
-        // MB <
-
-
+        
         globalCounter = 0;
         gameLoop();
     }
     
-    public GameObject createObject(Class ourClass)
-    {
+    public GameObject createObject(Class ourClass){
         // Full procedure for adding a new object into the game.
         
-        GameObject o;
+        GameObject gameObject;
         
-        try
-        {
-            o = (GameObject)ourClass.newInstance();
+        try{
+            gameObject = (GameObject) ourClass.newInstance();
         }
-        catch (InstantiationException i)
-        {o = new TestObject();}
-        catch (IllegalAccessException i)
-        {o = new TestObject();}
+        catch (InstantiationException | IllegalAccessException i) {
+            gameObject = new TestObject();
+        }
         
-        o.game = this;
-        objectList.add(o);
+        gameObject.game = this;
+        gameObject.createEvent();
+        gameObject.setPlayed();
+        objectList.add(gameObject);
         
-        return o;
+        return gameObject;
     }
     
-    public GameObject getObject(Class ourClass)
-    {
+    public GameObject getObject(Class ourClass){
         // Returns first added object of said class.
         // If there are none, returns null.
         
-        GameObject o;
+        GameObject gameObject;
         
-        for (int i = 0; i < objectList.size(); i ++)
-        {
-            o = objectList.get(i);
-            
-            if (objectList.get(i).getClass() == ourClass)
-            {return o;}
+        for (int i = 0; i < objectList.size(); i ++) {
+            gameObject = objectList.get(i);
+            if (objectList.get(i).getClass() == ourClass) return gameObject;
         }
         
         return null;
@@ -240,212 +101,128 @@ public class Game
     {
         // Similar to getObject, returns a list of all said objects.
         
-        GameObject o;
+        GameObject gameObject;
         ArrayList<GameObject> ourList = new ArrayList();
         
-        for (int i = 0; i < objectList.size(); i ++)
-        {
-            o = objectList.get(i);
-            
-            if (ourClass.isInstance(o))
-            {ourList.add(o);}
+        for (int i = 0; i < objectList.size(); i ++){
+            gameObject = objectList.get(i);
+            if (ourClass.isInstance(gameObject)) ourList.add(gameObject);
         }
         
         return ourList;
     }
     
-    public boolean keyboardCheck(String key)
-    {
+    public boolean keyboardCheck(String key){
         // Returns whether key is pressed.
-
-        if (key.equals("left")) {
-            return leftPressed;
-        } else if (key.equals("right")) {
-            return rightPressed;
-        } else if (key.equals("up")) {
-            return upPressed;
-        } else if (key.equals("down")) {
-            return downPressed;
-        } else if (key.equals("escape")) {
-            return escapePressed;
-        } else if (key.equals("enter")) {
-            return enterPressed;
-        } else if (key.equals("q")) {
-            return qPressed;
+        switch (key){
+            case "left": return leftPressed;
+            case "right": return rightPressed;
+            case "up": return upPressed;
+            case "down": return downPressed;
+            case "escape": return escapePressed;
+            case "enter": return enterPressed;
+            case "q": return qPressed;
+            case "backspace": return backspacePressed;
         }
         
         return false;
     }
     
-    public boolean keyboardHoldCheck(String key)
-    {
+    public boolean keyboardHoldCheck(String key){
         // Returns whether key is pressed.
-
-        if (key.equals("left")) {
-            return leftHold;
-        } else if (key.equals("right")) {
-            return rightHold;
-        } else if (key.equals("up")) {
-            return upHold;
-        } else if (key.equals("down")) {
-            return downHold;
-        } else if (key.equals("escape")) {
-            return escapeHold;
-        } else if (key.equals("enter")) {
-            return enterHold;
-        } else if (key.equals("q")) {
-            return qHold;
+        switch (key) {
+            case "left": return leftHold;
+            case "right": return rightHold;
+            case "up": return upHold;
+            case "down": return downHold;
+            case "escape": return escapeHold;
+            case "enter": return enterHold;
+            case "q": return qHold;
+            case "backspace": return backspaceHold && (backspaceHoldCounter > 0);
         }
-        
         return false;
     }
     
-    public void gotoMenu(String which)
-    {
-        if (which.equals("stage_select")) {
-            MenuObject startMenu = (MenuObject) createObject(MenuObject.class);
-            startMenu.setFont("/resources/pac_font_sprites.png", 8, 8);
-            startMenu.setTitle("STAGE SELECT");
-            startMenu.addSpinnerOption("Lives ", null, startingLives, 1, 5);
-            File folder = new File("src/resources/stages");
-            final File[] allLabyrinths = folder.listFiles();
-            InputStream in;
-            String stageName;
-            int c;
-            for (File f : allLabyrinths) {
-                try {
-                    // Reading the stage name.
-                    in = new FileInputStream(f);
-
-                    stageName = "";
-                    while ((c = in.read()) != '\n') {
-                        stageName += Character.toString((char) c);
-                    }
-                } catch (FileNotFoundException e) {
-                    stageName = "ERROR";
-                } catch (IOException e) {
-                    stageName = "ERROR";
-                }
-
-                // New callable.
-                final File finalFile = f;
-                startMenu.addMenuOption(stageName,
-                        new Callable<Integer>() {
-                            @Override
-                            public Integer call() {
-                                LabyrinthObject l = (LabyrinthObject) createObject(LabyrinthObject.class);
-                                l.setSource(finalFile);
-                                turnOnGame = true;
-                                return 1;
-                            }
-                        }
-                );
+    public char keyboardCharCheck() {
+        if (prevKeyChar == keyChar) return 0;
+        return keyChar;
+    }
+    
+    public void gotoMenu(String which){
+        switch (which){
+            case "start":{
+                startMenu();
             }
-            startMenu.addMenuOption("Settings",
-                    new Callable<Integer>() {
-                        @Override
-                        public Integer call() {
-                            System.out.print("Settings\n\n");
-//                            final File finalFile = allLabyrinths[0];
-//                            LabyrinthObject l = (LabyrinthObject) createObject(LabyrinthObject.class);
-//                            l.setSource(finalFile);
-                            turnOnGame = false;
-                            return 1;
-                        }
-                    }
-            );
-            startMenu.addMenuOption("EXIT",
-                    new Callable<Integer>() {
-                        @Override
-                        public Integer call() {
-                            turnOnGame = true;
-                            running = false;
-                            return 1;
-                        }
-                    }
-            );
-            startMenu.addButtonPressOption("exitOnQ",
-                    new Callable<Integer>() {
-                        @Override
-                        public Integer call() {
-                            turnOnGame = true;
-                            running = false;
-                            return 1;
-                        }
-                    },
-                    "q"
-            );
-
+            break;
+            case "stage_select":{
+                stageSelectMenu();
+            }
+            break;
+            case "server_setup":{
+                serverSetupMenu();
+            }
+            break;
+            case  "create_game":{
+                createGameMenu();
+            }
+            break;
+            case  "join_game":{
+                joinGameMenu();
+            }
+            break;
         }
     }
+
+    //public  void gotoSubMenu(String w)
     
-    public void endGame(boolean victory)
-    {
-        GameObject l = getObject(LabyrinthObject.class);
-        l.destroy();
+    public void endGame(boolean victory) {
+        isPlayedGhostCreated = false;
+        GameObject labirynt = getObject(LabyrinthObject.class);
+        labirynt.destroy();
         
         gotoMenu("stage_select");
     }
     
-    private void gameLoop()
-    {
+    private void gameLoop() {
         // Handles consistent FPS rate.
-        
         double nextStep = System.currentTimeMillis();
-        int loops = 0;
+        int loops;
         
-        while (running == true)
-        {
+        while (running){
             loops = 0;
             
-            while ((System.currentTimeMillis() > nextStep)
-                && (loops < max_render_skip))
-            {
-                // MB >
-                if (!stop) {
-                    gameStep();
-                }
-                // MB <
-
-
+            while ((System.currentTimeMillis() > nextStep) && (loops < max_render_skip)) {
+                gameStep();
+                
                 nextStep += framesSkip;
                 globalCounter ++;
                 loops ++;
-            }
-            
-            if (running)
-            {gameDraw();}
-            
-            if (escapePressed)
-            {running = false;}
+            }            
+            if (running) gameDraw();
+            if (escapePressed) running = false;
         }
         
         gameWindow.setVisible(false);
         gameWindow.dispose();
     }
     
-    private void gameStep()
-    {
+    private void gameStep() {
         // Runs the designated Step code for each and every object.
         // Deletes the "destroyed" ones.
         
-        GameObject o;
+        GameObject gameObject;
         
-        for (int i = 0; i < objectList.size(); i++)
-        {
-            o = objectList.get(i);
+        for (int i = 0; i < objectList.size(); i++) {
+            gameObject = objectList.get(i);
             
-            if (!o.isDestroyed())
-            {o.stepEvent();}
+            if (!gameObject.isDestroyed()) gameObject.stepEvent();
         }
         
-        for (int i = 0; i < objectList.size(); i++)
-        {
-            o = objectList.get(i);
+        for (int i = 0; i < objectList.size(); i++) {
+            gameObject = objectList.get(i);
             
-            if (o.isDestroyed())
-            {
-                o.destroyEvent();
+            if (gameObject.isDestroyed()) {
+                gameObject.destroyEvent();
                 objectList.remove(i);
             }
         }
@@ -453,85 +230,224 @@ public class Game
         keyboardSetHold();
     }
     
-    private void gameDraw()
-    {
+    private void gameDraw() {
         // Same as game_step, but triggers Draw code.
         // Pastes drawn frame onto JPanel.
         
         BufferedImage buf = new BufferedImage(
                 gameWindow.getSize().width,gameWindow.getSize().height,BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = (Graphics2D)buf.getGraphics();
+        Graphics2D graphics = (Graphics2D)buf.getGraphics();
         
         // Sort the list according to depth.
         Collections.sort(objectList,new GameObjectComparator());
         
         setSize();
         
-        GameObject o;
-        for (int i = 0; i < objectList.size(); i++)
-        {
-            o = objectList.get(i);
+        GameObject gameObject;
+        for (int i = 0; i < objectList.size(); i++) {
+            gameObject = objectList.get(i);
             
-            o.setScale(drawScale);
-            o.setCenter(drawCenterX,drawCenterY);
-            o.drawEvent(g);
+            gameObject.setScale(drawScale);
+            gameObject.setCenter(drawCenterX,drawCenterY);
+            gameObject.drawEvent(graphics);
         }
-
-//        MenuBar temp;
-//        for (int i = 0; i < menuBar.getMenuCount() ; i++){
-//            temp = menuBar.
-//        }
-//        menuBar.repaint();
-          menuBar.updateUI();
-//        gameWindow.setJMenuBar(menuBar);    // MB
-//        JMenuBar menuElement;
-//        for (menuElement : menuBar){
-//
-//        }
         
-        g = (Graphics2D)gameRenderer.getGraphics();
-        g.drawImage(buf,300,0,gameRenderer);
+        graphics = (Graphics2D)gameRenderer.getGraphics();
+        graphics.drawImage(buf,0,0,gameRenderer);
     }
     
-    private void setSize()
-    {
+    private void setSize() {
         // Setting the size according to window dimensions and labyrinth / menu height.
-        LabyrinthObject l;
-        MenuObject m;
+        LabyrinthObject labirynth;
+        MenuObject menu;
         
         drawScale = 1.0;
         drawCenterX = 0;
         drawCenterY = 0;
         
-        l = (LabyrinthObject)getObject(LabyrinthObject.class);
+        labirynth = (LabyrinthObject)getObject(LabyrinthObject.class);
         
-        if (l != null)
-        {
-            if (l.getHeight() >= l.getWidth())
-            {
-                drawScale = (double)gameWindow.getSize().height/(l.getHeight()+l.getY()+16);
-                drawCenterX = (int)(gameWindow.getSize().width/2.0-drawScale*(l.getWidth()+l.getX()+72)/2.0);
-                drawCenterY = (int)(gameWindow.getSize().height/2.0-drawScale*(l.getHeight()+l.getY()+16)/2.0);
+        if (labirynth != null) {
+            if (labirynth.getHeight() >= labirynth.getWidth()) {
+                drawScale = (double)gameWindow.getSize().height/(
+                        labirynth.getHeight()+labirynth.getY()+16);
+                drawCenterX = (int)(gameWindow.getSize().width/2.0-drawScale*(
+                        labirynth.getWidth()+labirynth.getX()+72)/2.0);
+                drawCenterY = (int)(gameWindow.getSize().height/2.0-drawScale*(
+                        labirynth.getHeight()+labirynth.getY()+16)/2.0);
             }
-            else
-            {
-                drawScale = (double)gameWindow.getSize().width/(l.getWidth()+l.getX()+88);
-                drawCenterX = (int)(gameWindow.getSize().width/2.0-drawScale*(l.getWidth()+l.getX()+88)/2.0);
-                drawCenterY = (int)(gameWindow.getSize().height/2.0-drawScale*(l.getHeight()+l.getY()+16)/2.0);
+            else {
+                drawScale = (double)gameWindow.getSize().width/(
+                        labirynth.getWidth() + labirynth.getX()+88);
+                drawCenterX = (int)(gameWindow.getSize().width / 2.0 - drawScale * (
+                        labirynth.getWidth() + labirynth.getX()+88)/2.0);
+                drawCenterY = (int)(gameWindow.getSize().height / 2.0 - drawScale * (
+                        labirynth.getHeight() + labirynth.getY()+16)/2.0);
             }
         }
-        else
-        {
-            m = (MenuObject)getObject(MenuObject.class);
+        else {
+            menu = (MenuObject)getObject(MenuObject.class);
             
-            drawScale = (double)gameWindow.getSize().height/(Math.max(96,m.getMenuHeight())+16);
-            drawCenterX = (int)(gameWindow.getSize().width/2.0-drawScale*(m.getMenuWidth()+m.getX())/2.0);
-            drawCenterY = (int)(gameWindow.getSize().height/2.0-drawScale*(Math.max(96,m.getMenuHeight())-m.getY())/2.0);
+            drawScale = (double)gameWindow.getSize().height/(Math.max(
+                    96,menu.getMenuHeight())+16);
+            drawCenterX = (int)(gameWindow.getSize().width/2.0-drawScale*(
+                    menu.getMenuWidth()+menu.getX())/2.0);
+            drawCenterY = (int)(gameWindow.getSize().height/2.0-drawScale*(
+                    Math.max(96,menu.getMenuHeight())-menu.getY())/2.0);
         }
     }
     
-    private void windowInit(boolean fullscreen)
-    {
+    private void startMenu() {
+        MenuObject startMenu = (MenuObject)createObject(MenuObject.class);
+        startMenu.setFont("/resources/pac_font_sprites.png",8,8);
+        startMenu.setTitle("PACMAN");
+        
+        startMenu.addMenuOption("Single player",() -> {
+                    gotoMenu("stage_select");
+                    return 1;
+                });
+        startMenu.addMenuOption("Multiplayer",() -> {
+                    gotoMenu("server_setup");
+                    return 1;
+                });
+        
+        startMenu.addMenuOption("EXIT", () -> {
+                running = false;
+                return 1;
+            });
+        startMenu.addButtonPressOption("exitOnQ",()-> {
+                    running = false;
+                    return 1;
+                }, "q" );
+    }
+    
+    private void stageSelectMenu() {
+        MenuObject stageSelectMenu = (MenuObject)createObject(MenuObject.class);
+        stageSelectMenu.setFont("/resources/pac_font_sprites.png",8,8);
+        stageSelectMenu.setTitle("SINGLE PLAYER");
+
+
+        /*sprites.add(new Sprite("/resources/pac_font_sprites.png",21,3,8,8));
+        sprites.add(new Sprite("/resources/pac_font_sprites.png",22,3,8,8));
+        sprites.add(new Sprite("/resources/pac_font_sprites.png",23,3,8,8));
+        sprites.add(new Sprite("/resources/pac_font_sprites.png",24,3,8,8));
+        sprites.add(new Sprite("/resources/pac_font_sprites.png",25,3,8,8));*/
+        stageSelectMenu.addImageSpinnerOption("Character ", null, isPacmanPlayed, 0, 1, sprites);
+
+        stageSelectMenu.addSpinnerOption("Lives ",null,startingLives,1,5);
+        stageSelectMenu.addSpinnerOption("Ghosts ", null, numberOfGhost, 1, 4);
+
+        // Loading all .txt files in "/resources/labyrinths" as stages.
+        File folder = new File("src/resources/stages");
+        File[] allLabyrinths = folder.listFiles();
+
+        InputStream in;
+        String stageName;
+        int c;
+
+        for (File f : allLabyrinths) {
+            try {
+                // Reading the stage name.
+                in = new FileInputStream(f);
+
+                stageName = "";
+                while ((c = in.read()) != '\n') 
+                    stageName += Character.toString((char)c);
+            } catch (FileNotFoundException e){
+                System.err.println("Error: File not found");
+                stageName = "ERROR";
+            } catch (IOException e){
+                System.err.println("Exception: IOException");
+                stageName = "ERROR";
+            }
+
+            // New callable.
+            final File finalFile = f;
+            stageSelectMenu.addMenuOption(stageName,() -> {
+                        LabyrinthObject l = (LabyrinthObject)createObject(LabyrinthObject.class);
+                        l.setSource(finalFile);
+                        return 1;
+                    });
+        }
+
+        stageSelectMenu.addMenuOption("BACK", () -> {
+                gotoMenu("start");
+                return 1;
+            });
+
+        stageSelectMenu.addButtonPressOption("exitOnQ",()-> {
+                    running = false;
+                    return 1;
+                }, "q" );
+    }
+    
+    private void serverSetupMenu() {
+        MenuObject menu = (MenuObject)createObject(MenuObject.class);
+        menu.setFont("/resources/pac_font_sprites.png",8,8);
+        menu.setTitle("MULTIPLAYER");
+
+        menu.addMenuOption("Create Game", () -> {
+            gotoMenu("create_game");
+            return 1;
+        });
+        menu.addMenuOption("Join Game", () -> {
+            gotoMenu("join_game");
+            return 1;
+        });
+        menu.addMenuOption("BACK", () -> {
+                gotoMenu("start");
+                return 1;
+            });
+        menu.addButtonPressOption("exitOnQ",()-> {
+                    running = false;
+                    return 1;
+                }, "q" );
+    }
+
+    private void createGameMenu() {
+        MenuObject menu = (MenuObject)createObject(MenuObject.class);
+        menu.setFont("/resources/pac_font_sprites.png",8,8);
+        menu.setTitle("CREATE GAME");
+
+        //menu.addNumberInputOption("IP: ",null,ipString,"xxx.xxx.x.xx",9);
+        menu.addMenuOption("Start",null);
+        menu.addImageSpinnerOption("Character ", null, isPacmanPlayed, 0, 1, sprites);
+        menu.addSpinnerOption("Plrs Num: ", null, numberOfGhost, 2, 4);
+        //menu.addNumberInputOption("Name: ",null,playerName,"allChars",7); // TODO
+        // nie potrafię sobie poradzić z tymi wyrażeniami regularnymi...
+        menu.addMenuOption("Name:",null);
+        menu.addNumberInputOption("Port: ",null,portString,null,4);
+
+        menu.addMenuOption("BACK", () -> {
+            gotoMenu("server_setup");
+            return 1;
+        });
+        menu.addButtonPressOption("exitOnQ",()-> {
+            running = false;
+            return 1;
+        }, "q" );
+    }
+
+    private void joinGameMenu() {
+        MenuObject menu = (MenuObject)createObject(MenuObject.class);
+        menu.setFont("/resources/pac_font_sprites.png",8,8);
+        menu.setTitle("JOIN GAME");
+
+        //menu.addNumberInputOption("IP: ",null,ipString,"xxx.xxx.x.xx",9);
+        menu.addMenuOption("Join",null);
+        menu.addNumberInputOption("IP: ",null,ipString,"xxx.xxx.x.xx",9);
+        menu.addNumberInputOption("Port: ",null,portString,null,4);
+        menu.addMenuOption("BACK", () -> {
+            gotoMenu("server_setup");
+            return 1;
+        });
+        menu.addButtonPressOption("exitOnQ",()-> {
+            running = false;
+            return 1;
+        }, "q" );
+    }
+    
+    private void windowInit(boolean fullscreen) {
         // Adds a new JFrame with a single JPanel.
         
         gameWindow = new JFrame("Testing");
@@ -550,56 +466,70 @@ public class Game
         
         // Fullscreen.
         
-        if (fullscreen)
-        {gameWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);}
+        if (fullscreen) gameWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
     
-    private void keyboardInit()
-    {
+    private void keyboardInit() {
         // Adds a new listener for following keys:
         
-        gameWindow.addKeyListener(new KeyListener()
-        {
+        gameWindow.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {}
 
             @Override
-            public void keyPressed(KeyEvent e)
-            {
-                switch (e.getKeyCode())
-                {
-                    case (KeyEvent.VK_LEFT): {leftPressed = true;} break;
-                    case (KeyEvent.VK_RIGHT): {rightPressed = true;} break;
-                    case (KeyEvent.VK_UP): {upPressed = true;} break;
-                    case (KeyEvent.VK_DOWN): {downPressed = true;} break;
-                    case (KeyEvent.VK_ESCAPE): {escapePressed = true;} break;
-                    case (KeyEvent.VK_ENTER): {enterPressed = true;} break;
-                    case (KeyEvent.VK_Q): {qPressed = true;} break;
-                    // MB >
-                    case (KeyEvent.VK_P) : stop = !stop; break;
-                    // MB <
+            public void keyPressed(KeyEvent e) {
+                keyChar = e.getKeyChar();
+                switch (e.getKeyCode()) {
+                    case (KeyEvent.VK_LEFT): leftPressed = true;
+                        break;
+                    case (KeyEvent.VK_RIGHT): rightPressed = true;
+                        break;
+                    case (KeyEvent.VK_UP): upPressed = true;
+                        break;
+                    case (KeyEvent.VK_DOWN): downPressed = true;
+                        break;
+                    case (KeyEvent.VK_ESCAPE): escapePressed = true;
+                        break;
+                    case (KeyEvent.VK_ENTER): enterPressed = true;
+                        break;
+                    case (KeyEvent.VK_Q): qPressed = true; 
+                        break;
+                    case (KeyEvent.VK_BACK_SPACE): backspacePressed = true; 
+                        break;
                 }
             }
 
             @Override
-            public void keyReleased(KeyEvent e)
-            {
-                switch (e.getKeyCode())
-                {
-                    case (KeyEvent.VK_LEFT): {leftPressed = false;} break;
-                    case (KeyEvent.VK_RIGHT): {rightPressed = false;} break;
-                    case (KeyEvent.VK_UP): {upPressed = false;} break;
-                    case (KeyEvent.VK_DOWN): {downPressed = false;} break;
-                    case (KeyEvent.VK_ESCAPE): {escapePressed = false;} break;
-                    case (KeyEvent.VK_ENTER): {enterPressed = false;} break;
-                    case (KeyEvent.VK_Q): {qPressed = false;} break;
+            public void keyReleased(KeyEvent e) {
+                if (keyChar == e.getKeyChar()) keyChar = 0;
+                switch (e.getKeyCode()) {
+                    case (KeyEvent.VK_LEFT): leftPressed = false; 
+                        break;
+                    case (KeyEvent.VK_RIGHT): rightPressed = false; 
+                        break;
+                    case (KeyEvent.VK_UP): upPressed = false;
+                        break;
+                    case (KeyEvent.VK_DOWN): downPressed = false;
+                        break;
+                    case (KeyEvent.VK_ESCAPE): escapePressed = false;
+                        break;
+                    case (KeyEvent.VK_ENTER): enterPressed = false;
+                        break;
+                    case (KeyEvent.VK_Q): qPressed = false;
+                        break;
+                    case (KeyEvent.VK_BACK_SPACE): backspacePressed = false; 
+                        break;
                 }
             }
         });
     }
     
-    private void keyboardSetHold()
-    {
+    private void keyboardSetHold() {
+        if ((!backspaceHold) && (backspacePressed))  backspaceHoldCounter = 20;
+        else {
+            if (backspaceHoldCounter > 0) backspaceHoldCounter--;
+        }
+        
         leftHold = leftPressed;
         rightHold = rightPressed;
         upHold = upPressed;
@@ -607,33 +537,20 @@ public class Game
         escapeHold = escapePressed;
         enterHold = enterPressed;
         qHold = qPressed;
+        backspaceHold = backspacePressed;
+        
+        prevKeyChar = keyChar;
     }
     
-    public static void main(String[] args)
-{
-    Game new_game = new Game();
-    new_game.init();
-}
+    public static void main(String[] args) {
+        Game new_game = new Game();
+        new_game.init();
+    }
     
     private JFrame gameWindow;
     private JPanel gameRenderer;
-    // MB >
-    //Where the GUI is created:
-    JMenuBar menuBar;
-    JMenu menu, submenu;
-    JMenuItem menuItem;
-    JRadioButtonMenuItem rbMenuItem;
-    JCheckBoxMenuItem cbMenuItem;
-    // MB <
-
     private boolean running;
-
-    // MB >
-    private boolean stop = false;
-    private ServerConfiguration serverConf;
-    private GameConfiguration gameConf;
-    // MB <
-
+    
     private int globalCounter;
     
     private ArrayList<GameObject> objectList;
@@ -642,6 +559,13 @@ public class Game
     private int framesSkip;
     private int max_render_skip;
     
+    private StringWrapper ipString;
+    private StringWrapper portString;
+    private StringWrapper playerName;
+    
+    private IntWrapper isPacmanPlayed;
+    private IntWrapper numberOfGhost;
+   
     private boolean leftPressed;
     private boolean rightPressed;
     private boolean upPressed;
@@ -649,6 +573,7 @@ public class Game
     private boolean escapePressed;
     private boolean enterPressed;
     private boolean qPressed;
+    private boolean backspacePressed;
     
     private boolean leftHold;
     private boolean rightHold;
@@ -657,9 +582,12 @@ public class Game
     private boolean escapeHold;
     private boolean enterHold;
     private boolean qHold;
-
-    private boolean turnOnGame = true; // MB
-
+    private boolean backspaceHold;
+    private int backspaceHoldCounter;
+    
+    private char prevKeyChar;
+    private char keyChar;
+    
     private int gameScore;
     private int gameLives;
     private IntWrapper startingLives;
@@ -667,27 +595,60 @@ public class Game
     private double drawScale;
     private int drawCenterX, drawCenterY;
     
-    public void close()
-    {running = false;}
+    private boolean isPlayedGhostCreated = false;
+
+    ArrayList<Sprite> sprites = new ArrayList();
+
     
-    public void addLives(int p)
-    {gameLives += p;}
-    public int getLives()
-    {return gameLives;}
-    public void setLives(int p)
-    {gameLives = p;}
-    public int getStartingLives()
-    {return startingLives.value;}
-    
-    public void addScore(int p)
-    {
-        gameScore += p;
-        if (gameScore < 0)
-        {gameScore = 0;}
+    public boolean isPlayedGhostCreated(){
+        return isPlayedGhostCreated;
     }
-    public int getScore()
-    {return gameScore;}
-    public void setScore(int s)
-    {gameScore = s;}
+    
+    public void setPlayedGhostCreated(boolean is){
+        isPlayedGhostCreated = is;
+    }
+    
+    public void close(){
+        running = false;
+    }
+    
+    public void addLives(int p){
+        gameLives += p;
+        if (gameLives < 0) gameLives = 0;
+    }
+    
+    public int getLives() {
+        return gameLives;
+    }
+    
+    public void setLives(int p){
+        if(p > 0) gameLives = p;
+    }
+    
+    public int getStartingLives(){
+        return startingLives.value;
+    }
+    
+    public boolean isPacmanPlayed(){
+        return (isPacmanPlayed.value == 0);
+    }
+    
+    public int getNumberOfGhosts(){
+        return numberOfGhost.value;
+    }
+    
+    public void addScore(int p){
+        gameScore += p;
+        if (gameScore < 0) gameScore = 0;
+    }
+    
+    public int getScore() {
+        return gameScore;
+    }
+    
+    public void setScore(int s) {
+        if (s > 0) gameScore = s;
+        else gameScore = 0;
+    }
 }
 

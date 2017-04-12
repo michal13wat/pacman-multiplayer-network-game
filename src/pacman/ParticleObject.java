@@ -1,20 +1,17 @@
 
 package pacman;
 
-public class ParticleObject extends ActiveObject
-{
+public class ParticleObject extends ActiveObject {
+    
     @Override
-    public void stepEvent()
-    {
+    public void stepEvent() {
         super.stepEvent();
         
         subimageIndex += imageSpeed;
-        if (subimageIndex >= imageCount)
-        {destroy();}
+        if (subimageIndex >= imageCount) destroy();
     }
     
-    public void setParticle(String sourceImg, int imageWidth, int imageHeight, int imageIndex, int imageCount, double imageSpeed)
-    {
+    public void setParticle(String sourceImg, int imageWidth, int imageHeight, int imageIndex, int imageCount, double imageSpeed) {
         loadSpriteSheet(sourceImg,imageWidth,imageHeight);
         
         this.subimageIndex = 0;

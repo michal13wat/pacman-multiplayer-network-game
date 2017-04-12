@@ -4,8 +4,7 @@ package pacman;
 public class DotObject extends CollectibleObject
 {
     @Override
-    public void createEvent()
-    {
+    public void createEvent() {
         super.createEvent();
         
         pointReward = 1;

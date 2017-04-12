@@ -20,13 +20,11 @@ abstract public class CollectibleObject extends ActiveObject
     }
     
     @Override
-    public void stepEvent()
-    {
+    public void stepEvent() {
         // Memory savin'
     }
     
-    public void getCollected(CharacterObject obj)
-    {
+    public void getCollected(CharacterObject obj) {
         // Update score.
         game.addScore(pointReward);
         

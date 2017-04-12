@@ -4,13 +4,13 @@ package pacman;
 import java.awt.Graphics2D;
 import java.awt.Image;
 
-abstract public class GameObject
-{
-    public GameObject()
-    {
+abstract public class GameObject {
+    public GameObject() {
         firstStep = true;
+        visible = true;
+        
         destroyed = false;
-        createEvent();
+        //createEvent();
     }
     
     abstract public void createEvent();
@@ -19,13 +19,15 @@ abstract public class GameObject
     
     abstract public void destroyEvent();
     
-    public void destroy()
-    {
+    public void setPlayed(){
+        //Nop()
+    }
+    
+    public void destroy() {
         destroyed = true;
     }
     
-    protected GameObject createObject(Class ourClass, int x, int y)
-    {
+    protected GameObject createObject(Class ourClass, int x, int y) {
         // Calls upon the Game object.
         
         GameObject o = game.createObject(ourClass);
@@ -37,33 +39,24 @@ abstract public class GameObject
         return o;
     }
     
-    protected int bounds(int x, int y, int z)
-    {
+    protected int bounds(int x, int y, int z) {
         return Math.min(Math.max(y,x),z);
     }
     
-    protected int approach(int from, int to, int by)
-    {
-        if (from > to)
-        {
-            return (Math.max(to,from-by));
-        }
+    protected int approach(int from, int to, int by) {
+        if (from > to) return (Math.max(to,from-by));
         
         return (Math.min(to,from+by));
     }
     
-    protected double approach(double from, double to, double by)
-    {
-        if (from > to)
-        {
-            return (Math.max(to,from-by));
-        }
+    protected double approach(double from, double to, double by) {
+        if (from > to) return (Math.max(to,from-by));
         
         return (Math.min(to,from+by));
     }
     
-    protected void drawSprite(Graphics2D g, Image src, int x, int y, double xat, double yat, int width, int height)
-    {
+    protected void drawSprite(
+            Graphics2D g, Image src, int x, int y, double xat, double yat, int width, int height) {
         g.drawImage(
             src,
             (int)(scaleMod*(x+xorigin))+screenCenterX,
@@ -75,12 +68,19 @@ abstract public class GameObject
             null);
     }
     
+    protected void drawSprite(
+            Graphics2D g, Sprite spr, int x, int y) {
+        drawSprite(g,spr.getSrc(),x,y,spr.getXat(),spr.getYat(),
+                     spr.getWidth(),spr.getHeight());
+    }
+    
     protected int depth = 0;
     
     protected int x, y, xstart, ystart;
     protected int xorigin, yorigin;
     protected int counter;
     protected boolean firstStep;
+    protected boolean visible;
     
     protected double scaleMod = 1;
     protected int screenCenterX = 0, screenCenterY = 0;
@@ -90,55 +90,62 @@ abstract public class GameObject
     
     protected LabyrinthObject collisionMap = null;
     
-    public boolean isDestroyed()
-    {
+    public boolean isDestroyed() {
         return destroyed;
     }
     
-    public int getX()
-    {return x;}
-    public int getY()
-    {return y;}
+    public int getX() {
+        return x;
+    }
+    public int getY(){
+        return y;
+    }
+    public int getXorigin() {
+        return xorigin;
+    }
+    public int getYorigin(){
+        return yorigin;
+    }
+    public boolean getVisible(){
+        return visible;
+    }
+    public void setVisible(boolean v){
+        visible = v;
+    }
     
-    public void setPosition(int x, int y)
-    {
+    public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
         
-        if (firstStep == true)
-        {
+        if (firstStep) {
             this.xstart = x;
             this.ystart = y;
         }
     }
     
-    public void setScale(double s)
-    {scaleMod = s;}
+    public void setScale(double s){
+        scaleMod = s;
+    }
     
-    public void setCenter(int x, int y)
-    {
+    public void setCenter(int x, int y) {
         this.screenCenterX = x;
         this.screenCenterY = y;
     }
     
-    public void setOrigin(int x, int y)
-    {
+    public void setOrigin(int x, int y) {
         this.xorigin = x;
         this.yorigin = y;
     }
     
-    public void setDepth(int d)
-    {
+    public void setDepth(int d) {
         depth = d;
     }
     
-    public int getDepth()
-    {
+    public int getDepth() {
         return depth;
     }
     
-    public void setCollisionMap(LabyrinthObject collisionMap)
-    {
+    public void setCollisionMap(LabyrinthObject collisionMap) {
         this.collisionMap = collisionMap;
     }
 }
