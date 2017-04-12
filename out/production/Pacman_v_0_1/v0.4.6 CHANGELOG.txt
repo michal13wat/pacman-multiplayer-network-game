@@ -1,0 +1,38 @@
+
+Zmiany w wersji v0.5:
+
+- 
+
+
+
+Do zrobienia:
+- tworzenie nowej gry (serwera)
+- w momencie wybrania create game powinna pojawiaæ siê postaæ do wyboru
+  oraz liczba graczy (¿eby serwer wiedzia³ na ilu graczy ma oczekiwaæ)
+- (upewniæ siê czy przypadkiem to nie mia³o byæ tak, ¿e liczba graczy jest
+  na sta³e ustalona na 3, a postaæ jest losowana)
+- tak naprawdê ustawienie IP powinno byæ w Join Game (tylko)
+- ustawienie portu jest OK
+
+Create Game
+	Start
+	Character < "postaæ" >
+	Players Number <2>  (2 - 4)
+	Player's Name: 
+// ewentualnie - Chose map
+	Port: 8080
+	BACK
+	
+	
+Po wciœniêciu Start:
+	Waiting for x Players...
+	Connected:
+		- Jan
+		- Michal
+
+	
+Join Game
+	Start
+	IP: 192.168.0.14
+	Port: 8080
+	BACK
