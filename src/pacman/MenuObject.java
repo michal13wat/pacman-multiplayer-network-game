@@ -72,7 +72,7 @@ public class MenuObject extends GameObject {
                 else
                     s += val.charAt(j);
                 k++;
-                System.out.println(s);
+                //System.out.println(s);
             }
             
             return s;

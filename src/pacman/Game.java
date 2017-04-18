@@ -1,6 +1,11 @@
 
 package pacman;
 
+import clientAndServer.PackReceivedFromServer;
+import clientAndServer.Server;
+import clientAndServer.ServerThread;
+import clientAndServer.TestObjectToSend;
+
 import java.awt.*;
 import java.awt.image.*;
 import javax.swing.*;
@@ -13,7 +18,7 @@ import java.io.*;
 
 import java.awt.event.*;
 
-public class Game
+public class Game extends Thread
 {
     class GameObjectComparator implements Comparator<GameObject> {
         // A private class made for sorting objects by depth.
@@ -44,10 +49,11 @@ public class Game
         max_render_skip = 10;
         
         startingLives = new IntWrapper(3);
-        numberOfGhost = new IntWrapper(4);
+        playersAmount = new IntWrapper(4);
         isPacmanPlayed = new IntWrapper(0);
         ipString = new StringWrapper("192168110");
         portString = new StringWrapper("8080");
+        playerName = new StringWrapper("");
         
         objectList = new ArrayList();
         
@@ -287,13 +293,18 @@ public class Game
         }
         else {
             menu = (MenuObject)getObject(MenuObject.class);
-            
-            drawScale = (double)gameWindow.getSize().height/(Math.max(
-                    96,menu.getMenuHeight())+16);
-            drawCenterX = (int)(gameWindow.getSize().width/2.0-drawScale*(
-                    menu.getMenuWidth()+menu.getX())/2.0);
-            drawCenterY = (int)(gameWindow.getSize().height/2.0-drawScale*(
-                    Math.max(96,menu.getMenuHeight())-menu.getY())/2.0);
+
+            try{
+                drawScale = (double)gameWindow.getSize().height/(Math.max(
+                        96,menu.getMenuHeight())+16);
+                drawCenterX = (int)(gameWindow.getSize().width/2.0-drawScale*(
+                        menu.getMenuWidth()+menu.getX())/2.0);
+                drawCenterY = (int)(gameWindow.getSize().height/2.0-drawScale*(
+                        Math.max(96,menu.getMenuHeight())-menu.getY())/2.0);
+            }catch (NullPointerException e){
+                // TODO - nie wiem dlaczego, jak uruchamiam server, to ciągle wywala tu wyjątek
+//                System.out.print("########  Złąpano wyjątek związany ze skalowaniem!!!! #########\n");
+            }
         }
     }
     
@@ -335,7 +346,7 @@ public class Game
         stageSelectMenu.addImageSpinnerOption("Character ", null, isPacmanPlayed, 0, 1, sprites);
 
         stageSelectMenu.addSpinnerOption("Lives ",null,startingLives,1,5);
-        stageSelectMenu.addSpinnerOption("Ghosts ", null, numberOfGhost, 1, 4);
+        stageSelectMenu.addSpinnerOption("Ghosts ", null, playersAmount, 1, 4);
 
         // Loading all .txt files in "/resources/labyrinths" as stages.
         File folder = new File("src/resources/stages");
@@ -410,12 +421,18 @@ public class Game
         menu.setTitle("CREATE GAME");
 
         //menu.addNumberInputOption("IP: ",null,ipString,"xxx.xxx.x.xx",9);
-        menu.addMenuOption("Start",null);
         menu.addImageSpinnerOption("Character ", null, isPacmanPlayed, 0, 1, sprites);
-        menu.addSpinnerOption("Plrs Num: ", null, numberOfGhost, 2, 4);
-        //menu.addNumberInputOption("Name: ",null,playerName,"allChars",7); // TODO
+
+        /* TODO - prócz uruchomienia servera trzeba tutaj uruchomić jednego klienta lokalnie */
+        menu.addMenuOption("Start", ()-> {
+            this.start();
+            return 1;
+        });
+
+        menu.addSpinnerOption("Plrs Amout: ", null, playersAmount, 2, 4);
         // nie potrafię sobie poradzić z tymi wyrażeniami regularnymi...
-        menu.addMenuOption("Name:",null);
+        //menu.addMenuOption("Name:",null);
+        menu.addStringInputOption("Name: ", null, playerName, null, 7);
         menu.addNumberInputOption("Port: ",null,portString,null,4);
 
         menu.addMenuOption("BACK", () -> {
@@ -428,12 +445,58 @@ public class Game
         }, "q" );
     }
 
+
+    @Override
+    public void run(){
+        startServer();
+        System.out.print("Wątek serwera zakończony!\n");
+    }
+
+    private void  startServer(){
+        int port = new Integer(portString.value);
+        listening = true;
+        Server server = new Server(12345, playersAmount.value);
+        TestObjectToSend testObj = new TestObjectToSend();
+        ArrayList<TestObjectToSend> objList = new ArrayList<>();
+        PackReceivedFromServer<TestObjectToSend> packOutToClient;
+        while (listening) {
+            if (ServerThread.getObjReceived() != null){
+                // odbieranie obiektu
+                System.out.print("Name = " + ServerThread.getObjReceived().getPlayersName()
+                        + ", Character = " + ServerThread.getObjReceived().getCharacter()
+                        + ", PressedKey = " + ServerThread.getObjReceived().getPressedKey() + "\n");
+
+                // symulacja przetwarznia obiektu
+                testObj.ilosc = 0;
+                testObj.nazwa = ("asdf " +  ServerThread.getObjReceived().getPlayersName()
+                        + " hwdp " + ServerThread.getObjReceived().getCharacter()
+                        + " jp100 " + ServerThread.getObjReceived().getPressedKey() );
+                objList.clear();
+                for (int i = 0; i < 4; i ++){
+                    objList.add(testObj);
+                }
+                // wysyłanie obiektu
+                packOutToClient = new PackReceivedFromServer<>();
+                packOutToClient.addList(objList);
+                ServerThread.setObjToSend(packOutToClient);
+
+
+                ServerThread.setObjReceived(null);
+            }
+        }
+    }
+
+    private void stopServer(){
+        listening = false;
+    }
+
     private void joinGameMenu() {
         MenuObject menu = (MenuObject)createObject(MenuObject.class);
         menu.setFont("/resources/pac_font_sprites.png",8,8);
         menu.setTitle("JOIN GAME");
 
         //menu.addNumberInputOption("IP: ",null,ipString,"xxx.xxx.x.xx",9);
+        menu.addImageSpinnerOption("Character ", null, isPacmanPlayed, 0, 1, sprites);
         menu.addMenuOption("Join",null);
         menu.addNumberInputOption("IP: ",null,ipString,"xxx.xxx.x.xx",9);
         menu.addNumberInputOption("Port: ",null,portString,null,4);
@@ -564,7 +627,7 @@ public class Game
     private StringWrapper playerName;
     
     private IntWrapper isPacmanPlayed;
-    private IntWrapper numberOfGhost;
+    private IntWrapper playersAmount;
    
     private boolean leftPressed;
     private boolean rightPressed;
@@ -596,6 +659,8 @@ public class Game
     private int drawCenterX, drawCenterY;
     
     private boolean isPlayedGhostCreated = false;
+
+    private boolean listening = false;
 
     ArrayList<Sprite> sprites = new ArrayList();
 
@@ -634,7 +699,7 @@ public class Game
     }
     
     public int getNumberOfGhosts(){
-        return numberOfGhost.value;
+        return playersAmount.value;
     }
     
     public void addScore(int p){
