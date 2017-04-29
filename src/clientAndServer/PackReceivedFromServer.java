@@ -1,18 +1,18 @@
 package clientAndServer;
 
-/**
- * Created by User on 2017-04-17.
- */
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * Created by User on 2017-04-17.
+ */
 /*
  *  Nazwa klasy jest logiczna jeżeli patrzy się od strony klieta.
  *  Żeby nie toworzyć nowych klas osobno dla servera, użyję tych.
  *  */
 public class PackReceivedFromServer<T> implements Serializable {
     private String additionalInfo;
-    private ArrayList<T> objectsList = new ArrayList<T>();
+    private ArrayList<T> objectsList = new ArrayList<T>();          // główny element klasy!
     private ArrayList<String> connectedClients = new ArrayList<>();
     private int notConnectedClients = 0;
 
@@ -41,6 +41,10 @@ public class PackReceivedFromServer<T> implements Serializable {
         return objectsList;
     }
 
+    public void addConnectedClient(String name){
+        this.connectedClients.add(name);
+    }
+
     public void setConnectedClients(ArrayList<String> connectedClients) {
         this.connectedClients = connectedClients;
     }
@@ -55,5 +59,9 @@ public class PackReceivedFromServer<T> implements Serializable {
 
     public int getNotConnectedClients() {
         return notConnectedClients;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 }

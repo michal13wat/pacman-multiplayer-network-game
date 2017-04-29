@@ -18,6 +18,7 @@ public class Server extends Thread {
         ServerThread.setPort(port);
         for (int i = 0; i < clientAmount; i++) {
             ServerThread temp = new ServerThread();
+//            temp.setPriority(Thread.MAX_PRIORITY);
             serverThreads.add(temp);
             temp.start();
             try {

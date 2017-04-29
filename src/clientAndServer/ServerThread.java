@@ -18,6 +18,7 @@ public class ServerThread extends Thread {
     private static int threadCnt = 0;
     private int threadNum;
     private static int connectedClients = 0;
+    private static boolean unlock = false;
 
     private static volatile PackReceivedFromServer objToSend = null;
     public static volatile PackToSendToServer objReceived = null;
@@ -46,7 +47,7 @@ public class ServerThread extends Thread {
             System.out.print("Wątek serwerowy nr: " + threadNum + "\n");
             playerWhiteSocket = serverSocket.accept();
             try{
-                playerWhiteSocket.socket().setSoTimeout(20);
+                playerWhiteSocket.socket().setSoTimeout(25);
             }catch (SocketException e){
                 System.out.print("Złapano wyjątek związany z timeout-em w serwerze\n");
             }
@@ -54,6 +55,7 @@ public class ServerThread extends Thread {
             connectedClients++;
             if (connectedClients == Server.getClientAmount()){
                 System.out.print("Wszyscy klienci podłączeni - Naciśnij Enter aby rozpocząć grę\n");
+                setServerIntoLockMode();
             }
 
             while (true){
@@ -84,28 +86,24 @@ public class ServerThread extends Thread {
         oos.flush();
     }
 
-    private void receiveObject (SocketChannel sChannel)
+    synchronized private void receiveObject (SocketChannel sChannel)
     {
+        ObjectInputStream ois = null;
         try {
-            ObjectInputStream ois =
-                    new ObjectInputStream(sChannel.socket().getInputStream());
+            ois = new ObjectInputStream(sChannel.socket().getInputStream());
             objReceived = (PackToSendToServer)ois.readObject();
-            System.out.print(objReceived.getPlayersName() + ", "
-                    + objReceived.getCharacter() + "\n");
             System.out.print("Metoda odbierająca... \n");
-        } catch (ClassNotFoundException | IOException e){
-            // TODO - nie wiem dlaczego ciągle tutaj wywala ten wyjątek...
-            // TODO (program nawet nie zdąży wejść w ten blok try i już wywala wyjątek...)
-            // Jak odpalam to w osobnym projekcie, to też wywala wyjątek cały czas, ale
-            // mimo to jako tako to działa...
-
+        } catch (IOException | ClassNotFoundException e){
+            // Tutaj cały czas wywala wyjątek związany z timeout-em Socket-a, ale nie należy się tym przejnować.
+            // Niestety zrobiłem to tak trochę dziadowo i właśnie na tej zasadzie to działa...
 //            System.out.print("Błąd serwera - odbieranie obiektu od klienta nie powiodło się!!! \n\n");
+//            e.printStackTrace();
         }
     }
 
     // Jeśli obiekt został wysłany przez wyszystkie wątki, to wtedy ustaw kolejny do wysłania
     public static synchronized void setObjToSend(PackReceivedFromServer objToSend) {
-        if (isSent()){
+        if (isSent() || unlock){
             ServerThread.objToSend = objToSend;
             for (int i = 0; i < verifySendObject.length; i++){
                 verifySendObject[i] = true;
@@ -139,5 +137,19 @@ public class ServerThread extends Thread {
 
     public static void setPort(int port) {
         ServerThread.port = port;
+    }
+
+    /* Przełącz serwer w tryb blokujący, tj. żeby mógł wysyłać tylko, gdy poprzednie dane roześle do
+     * wszystkich klientów. */
+    public static void setServerIntoLockMode(){
+        unlock = false;
+    }
+
+     public static void setServerIntoUnlockMode(){
+        unlock = true;
+    }
+
+    public static int getConnectedClients() {
+        return connectedClients;
     }
 }

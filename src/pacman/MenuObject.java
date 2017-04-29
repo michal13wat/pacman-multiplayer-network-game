@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 public class MenuObject extends GameObject {
-    
+    private boolean hiddenPrefix = false;
+
     private class MenuOption {
         // Private class for different options.
         
@@ -354,7 +355,7 @@ public class MenuObject extends GameObject {
         }
 
         // Selected arrow.
-        if (cursorPos == i) renderer.setPrefix("> ");
+        if (cursorPos == i && !hiddenPrefix) renderer.setPrefix("> ");
         else renderer.setPrefix("  ");
 
         renderer.setText(o.getName());
@@ -373,6 +374,14 @@ public class MenuObject extends GameObject {
         }
         
         return newHeight;
+    }
+
+    public void hidePrefixMenu(){
+        hiddenPrefix = true;
+    }
+
+    public void showPrefixMenu(){
+        hiddenPrefix = false;
     }
     
     private void select(MenuOption o) {

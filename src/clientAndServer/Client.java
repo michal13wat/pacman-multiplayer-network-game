@@ -33,7 +33,7 @@ public class Client extends Thread {
         System.out.print("Klient podłączony na porcie " + port1 + "\n");
 
         try{
-            sChannel.socket().setSoTimeout(7);
+            sChannel.socket().setSoTimeout(15);
         }catch (SocketException e){
             System.out.print("Złapano wyjątek związany z timeout-em w kliencie\n");
         }
