@@ -1,0 +1,4 @@
+[autorun]
+Pacman.msi
+ACTION=Install Pacman
+LABEL=Pacman
