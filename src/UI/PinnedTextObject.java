@@ -15,19 +15,8 @@ public class PinnedTextObject extends TextObject implements Serializable {
         this.yorigin = pin.getYorigin();
         x = pin.getX()+addx;
         y = pin.getY()+addy;
-        //visible = pin.getVisible();
     }
-    
-    public void setPin(GameObject pin, int addx, int addy) {
-        // Doczepienie do jakiegoś obiektu.
-        this.pin = pin;
-        this.addx = addx;
-        this.addy = addy;
-        
-        this.xorigin = pin.getXorigin();
-        this.yorigin = pin.getYorigin();
-    }
-    
-    GameObject pin;
-    int addx, addy;
+
+    private GameObject pin;
+    private int addx, addy;
 }

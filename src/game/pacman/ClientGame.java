@@ -8,24 +8,18 @@ import game.objects.GameObject;
 import game.objects.LabyrinthObject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.ListIterator;
 import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import UI.*;
-//import static Game.packReceivedFromServer;
-
 
 public class ClientGame extends Game {
     
-    public ClientGame(JFrame gameWindow, JPanel gameRenderer, StringWrapper playerName, IntWrapper chosenCharacter) {
+    ClientGame(JFrame gameWindow, JPanel gameRenderer, StringWrapper playerName, IntWrapper chosenCharacter) {
         this.gameWindow = gameWindow;
         this.gameRenderer = gameRenderer;
         this.playerName = playerName;
         this.chosenCharacter = chosenCharacter;
-        //this.ipString = ipString;
-        //this.portString = portString;
-        //this.playerNumber = playerNumber;
     }
     
     @Override
@@ -33,9 +27,8 @@ public class ClientGame extends Game {
         System.out.println("Inicjalizacja ClientGame.");
         
         Random random = new Random();
-        clientId = (int)Math.abs(random.nextInt());
-        random = null;
-        
+        clientId = Math.abs(random.nextInt());
+
         // Parametry gry.
         running = true;
         ready = false;
@@ -45,7 +38,7 @@ public class ClientGame extends Game {
         framesPerSecond = 60;
         framesSkip = 1000/framesPerSecond;
         max_render_skip = 10;
-        objectList = new ArrayList();
+        objectList = new ArrayList<>();
         
         playerNumbers = new HashMap<>();
         playerNames = new HashMap<>();
@@ -120,9 +113,7 @@ public class ClientGame extends Game {
                 
                 if ((System.currentTimeMillis() <= nextStep) || (loops >= max_render_skip)) {
                     if ((running) && (!halted)) {
-                        //System.out.println("KLIENT - RYSUJĘ");
                         gameDraw();
-                        //System.out.println("KLIENT - SKOŃCZYŁEM");
                     }
                 }
             
@@ -141,45 +132,30 @@ public class ClientGame extends Game {
         return obj;
     }
     
-    protected void sendInput()
+    private void sendInput()
     {
         String name;
         int character;
         String pressedKey;
         
         name = playerName.value;
-        // TODO - zrobić jak będzie działał wybór postaci
         character = chosenCharacter.value;
         pressedKey = checkPressedKeys();
         System.out.println("KLIENT " + name + (ready ? ("[OK] ") : "") + " " + pressedKey);
-        
-        // TODO - wywalić to opóźnienie
-        
-        // Usunięte gdyż:
-        // TODO tak kazał.
-        /*try{
-             sleep(2000);
-        }catch (InterruptedException e){
-            e.printStackTrace();
-        }*/
-        
+
         client.packOut = new PackToSendToServer(name, character, pressedKey, clientId, ready);
     }
     
-    protected void receiveObjects()
+    private void receiveObjects()
     {
         // odebranie obiektów od serwera i symulacja wyświetlenia obiektów na mapie
         if (ClientBrain.recPac != null) {
-            packReceivedFromServer = ClientBrain.recPac;
+            PackReceivedFromServer<GameObject> packReceivedFromServer = ClientBrain.recPac;
             ClientBrain.recPac = null;
-//                ArrayList<TestObjectToSend> objList = temp.getObjectsList();
-//                for (TestObjectToSend obj : objList){
-//                    System.out.print("objReceivedFromServer.ilosc = " + obj.ilosc
-//                            + " objReceivedFromServer.nazw = " + obj.nazwa + "\n");
-//                }
+
             System.out.print("KLIENT - Odebrano obiekty. \n");
             System.out.print("KLIENT - Connected clients: \n");
-            for ( int i = 0; i < packReceivedFromServer.getConnectedClients().size(); i++){
+            for (int i = 0; i < packReceivedFromServer.getConnectedClients().size(); i++){
                 System.out.print("\t- " + packReceivedFromServer.getConnectedClients().get(i) + "\n");
             }
             System.out.print("KLIENT - Waiting for: " + packReceivedFromServer.getNotConnectedClients() +
@@ -194,7 +170,7 @@ public class ClientGame extends Game {
             deleteIds(packReceivedFromServer.getDeletedList());
             LabyrinthObject labyrinth = null;
             
-            if (packReceivedFromServer.getRandomizer() != null) random = packReceivedFromServer.getRandomizer();
+            if (packReceivedFromServer.getRandomized() != null) random = packReceivedFromServer.getRandomized();
             
             // Ustawianie wszystkim obiektom tej gry jako bazowej.
             for (GameObject o : objectList) {
@@ -238,7 +214,7 @@ public class ClientGame extends Game {
                             System.out.println("KLIENT - new remote keyboard - " + i);
                     }
                     
-                    if ((pack.isPlayerReady() == true) && (playerReady.get(id) == false)) {
+                    if ((pack.isPlayerReady()) && (!playerReady.get(id))) {
                         characterBlocked.get(pack.getCharacter()).value = 1;
                         playerReady.put(id, true);
                     }
@@ -257,73 +233,29 @@ public class ClientGame extends Game {
     private void overlapIds(ArrayList<GameObject> newList) {
         System.out.print("KLIENT - MAMY " + objectList.size() + " ODEBRANE: " + newList.size());
         for (GameObject oo : newList)
-            for (ListIterator<GameObject> iter = objectList.listIterator(); iter.hasNext(); ) {
-                GameObject o = iter.next();
-                if ((o.getId() == oo.getId()) || (o.isDisposable()))
-                    iter.remove();
-            }
-        //objectList.clear();
-        for (GameObject oo : newList) {
-            objectList.add(oo);
-            //System.out.print(oo.getClass().getName() + " ");
-        }
+            objectList.removeIf(o -> (o.getId() == oo.getId()) || (o.isDisposable()));
+        objectList.addAll(newList);
         System.out.print("\n");
-        //for (GameObject o : objectList)
-        //    System.out.println(o);
     }
     
     private void deleteIds(ArrayList<Integer> newList) {
         for (int id : newList)
-            for (ListIterator<GameObject> iter = objectList.listIterator(); iter.hasNext(); ) {
-                GameObject o = iter.next();
-                if (o.getId() == id)
-                    iter.remove();
-            }
+            objectList.removeIf(o -> o.getId() == id);
     }
     
     @Override
     public KeyboardControl getKeyboard(int i) {
         if (i == clientId) return keyboardControl;
         if (keyboardControlRemote.containsKey(i)) return keyboardControlRemote.get(i);
-        //System.out.println(i);
         return keyboardControl;
     }
-    
-    static volatile PackReceivedFromServer<GameObject> packReceivedFromServer;
-    
-    ClientBrain client;
-    int playersConnected = 0;
-    int clientId;
-    
-    boolean ready;
-    
-    public void setReady(boolean x) {ready = x;}
-    public boolean isReady() {return ready;}
-    
-    private String processAddressIP(String addressIP){
-        System.out.println("INITIAL ADDRESS " + addressIP);
-        if (addressIP == "localhost"){
-            return addressIP;
-        }
-        int length = addressIP.length();
-        String IP = new String();
-        if (length < 8 || length > 11){
-            IP = addressIP;
-        }else {
-            if (addressIP.matches("\\d+")){
-                //System.out.println("To jest adres IP: " + addressIP);
-                IP = addressIP.substring(0, 3);
-                IP += ".";
-                IP += addressIP.substring(3, 6);
-                IP += ".";
-                IP += addressIP.substring(6, 7);
-                IP += ".";
-                IP += addressIP.substring(7);
-                //System.out.println("Po przetworzeniu:" + IP);
-            }
 
-        }
-        System.out.println("PROCESSED ADDRESS " + IP);
-        return IP;
-    }
+    private ClientBrain client;
+    private int playersConnected = 0;
+    private int clientId;
+    
+    private boolean ready;
+    
+    public void setReady() {ready = true;}
+    public boolean isReady() {return ready;}
 }

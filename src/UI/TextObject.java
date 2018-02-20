@@ -27,7 +27,7 @@ public class TextObject extends GameObject implements Serializable {
     
     @Override
     public void drawEvent(Graphics2D graphics) {
-        if (visible == false)
+        if (!visible)
         {return;}
         
         drawMyText(graphics);
@@ -35,10 +35,9 @@ public class TextObject extends GameObject implements Serializable {
     
     @Override
     public void destroyEvent() {
-        //
     }
     
-    public void forceDraw(double scaleMod, int screenCenterX, int screenCenterY, Graphics2D graphics) {
+    void forceDraw(double scaleMod, int screenCenterX, int screenCenterY, Graphics2D graphics) {
         setCenter(screenCenterX,screenCenterY);
         setScale(scaleMod);
         
@@ -54,7 +53,7 @@ public class TextObject extends GameObject implements Serializable {
         fontHeight = height;
     }
 
-    protected Point charToPos(int c) {
+    private Point charToPos(int c) {
         // row 0 - Uppercase, row 1 - Lowercase, row 2 - Digits, row 3 - Misc
         if (c == ' ') return new Point(10,2);
         if ((c >= 'A') && (c <= 'Z')) return new Point(c-'A',0);
@@ -94,7 +93,7 @@ public class TextObject extends GameObject implements Serializable {
         return new Point(10,2);
     }
     
-    protected void drawMyText(Graphics2D graphics) {
+    void drawMyText(Graphics2D graphics) {
         
         int c = 0, tmp_x = 0, tmp_y = 0;
         Point fontPos = null;
@@ -115,11 +114,8 @@ public class TextObject extends GameObject implements Serializable {
     }
 
     protected String ourText, ourPrefix, ourPostfix;
-    protected String font;
+    private String font;
     protected int fontWidth, fontHeight;
-
-    //public String getText()
-    //{return ourPrefix+ourText+ourPostfix;}
 
     public void setText(String s) {
         ourText = ourPrefix+s+ourPostfix;
@@ -129,8 +125,7 @@ public class TextObject extends GameObject implements Serializable {
         ourPrefix = s;
     }
     
-    public void setPostfix(String s) {
+    void setPostfix(String s) {
         ourPostfix = s;
     }
-
 }

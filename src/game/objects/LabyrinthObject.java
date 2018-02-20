@@ -2,16 +2,12 @@
 package game.objects;
 
 import UI.TextObject;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
-
 import java.awt.Point;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-
 import java.io.*;
-
 import game.pacman.ClientGame;
 import game.pacman.ServerGame;
 
@@ -32,7 +28,7 @@ public class LabyrinthObject extends GameObject implements Serializable {
         if (counter == 0) labyrinthInit();
         
         // Zwycięstwo.
-        if ((game.getAllObjects(DotObject.class).isEmpty()) && (finished == false)) {
+        if ((game.getAllObjects(DotObject.class).isEmpty()) && (!finished)) {
             finished = true;
             
             ArrayList<GameObject> l = game.getAllObjects(GhostObject.class);
@@ -73,7 +69,7 @@ public class LabyrinthObject extends GameObject implements Serializable {
                     else if (game.getPacmanPlayer() == 0)endDisplay.setText("YOU WIN !!!");
                     else endDisplay.setText("YOU LOSE !!!");
                 }
-                if (game.getLives() == 0) { ////////////////////// TUTAJ SIĘ ZAWIESZA(Ł) SERWER!!!!!!! ///////////////////////////////////////
+                if (game.getLives() == 0) {
                     if ((game instanceof ClientGame) || (game instanceof ServerGame))
                     {endDisplay.setText("GHOSTS WIN!!!");endDisplay.setPosition(endDisplay.getX(),48);}
                     else if (game.getPacmanPlayer() == 0)endDisplay.setText("YOU LOSE !!!");
@@ -86,7 +82,7 @@ public class LabyrinthObject extends GameObject implements Serializable {
             g.setColor(Color.WHITE);
             for (int i = 0; i < width; i++){
                 for (int j = 0; j < height; j++) {
-                    if (myCollisionMap[i][j] == true) g.fillRect(x+sizeMod*i,y+sizeMod*j,16,16);
+                    if (myCollisionMap[i][j]) g.fillRect(x+sizeMod*i,y+sizeMod*j,16,16);
                 }
             }
         }
@@ -102,34 +98,19 @@ public class LabyrinthObject extends GameObject implements Serializable {
     @Override
     public void destroyEvent() {
         ArrayList<GameObject> l = game.getAllObjects(GameObject.class);
-        
-        for (int i = 0; i < l.size(); i ++) {
-            l.get(i).destroy();
+
+        for (GameObject aL : l) {
+            aL.destroy();
         }
-        
-        /*nameDisplay.destroy();
-        scoreDisplay.destroy();
-        livesDisplay.destroy();
-        endDisplay.destroy();*/
         
         game.gotoMenu("stage_select");
     }
     
-    /*@Override
-    public boolean sendMe() {
-        if ((sent == false) && (sourceFile != null)) {
-            System.out.println("SERWER - MOŻNA PRZESŁAĆ LABIRYNT");
-            sent = true;
-            return true;
-        }
-        return false;
-    }*/
-    
-    public boolean checkCollision(int x, int y) {
+    private boolean checkCollision(int x, int y) {
         return (myCollisionMap[bounds(0,x,width-1)][bounds(0,y,height-1)]);
     }
     
-    public boolean checkCollisionScaled(double x, double y) {
+    boolean checkCollisionScaled(double x, double y) {
         return (myCollisionMap
                 [bounds(0,(int)Math.floor(x/sizeMod),width-1)]
                 [bounds(0,(int)Math.floor(y/sizeMod),height-1)]);
@@ -148,10 +129,10 @@ public class LabyrinthObject extends GameObject implements Serializable {
             layoutInput(fi);
             fi.close();
         }
-        catch (Exception e) {}
+        catch (Exception ignored) {}
         
         // Ustawienie wyświetlaczy tesktu.
-        nameDisplay = (TextObject)createObject(TextObject.class,width+1,0);
+        TextObject nameDisplay = (TextObject) createObject(TextObject.class, width + 1, 0);
         nameDisplay.loadFont("pac_font_sprites",8,8);
         nameDisplay.setText(labyrinthName);
         endDisplay = (TextObject)createObject(TextObject.class,width+1,3);
@@ -263,12 +244,11 @@ public class LabyrinthObject extends GameObject implements Serializable {
                     if ((c = in.read()) == '\n') break;
                 }
             }
-        } catch (IOException i) {}
+        } catch (IOException ignored) {}
         
         try {
             in.close();
-        } catch (IOException i) {
-            return;
+        } catch (IOException ignored) {
         }
     }
     
@@ -284,17 +264,17 @@ public class LabyrinthObject extends GameObject implements Serializable {
                         // Solid 
                         if (checkCollision(x-1+2*i,y-1+2*j)) v.add(new Point(6,0));
                         // Little corner
-                        else v.add(new Point(4+i,0+j));
+                        else v.add(new Point(4+i, j));
                     }
                     // Vertical Wall 
-                    else v.add(new Point(0+i,0+i));
+                    else v.add(new Point(i, i));
                 }
                 // No Top
                 else {
                     // Horizontal Wall 
-                    if (checkCollision(x-1+2*i,y)) v.add(new Point(1-j,0+j));
+                    if (checkCollision(x-1+2*i,y)) v.add(new Point(1-j, j));
                     // Big Corner 
-                    else v.add(new Point(2+i,0+j));
+                    else v.add(new Point(2+i, j));
                 }
             }
         }
@@ -337,20 +317,19 @@ public class LabyrinthObject extends GameObject implements Serializable {
         return o;
     }
     
-    int width, height, sizeMod;
-    boolean myCollisionMap[][];
+    private int width, height, sizeMod;
+    private boolean myCollisionMap[][];
     
-    String sourceFile;
-    String labyrinthName;
+    private String sourceFile;
+    private String labyrinthName;
+
+    private TextObject livesDisplay = null;
+    private TextObject scoreDisplay = null;
+    private TextObject endDisplay = null;
+    private String tileset;
     
-    TextObject nameDisplay = null;
-    TextObject livesDisplay = null;
-    TextObject scoreDisplay = null;
-    TextObject endDisplay = null;
-    String tileset;
-    
-    boolean finished = false;
-    boolean fromJar = false;
+    private boolean finished = false;
+    private boolean fromJar = false;
     
     public void setSource(String f, boolean fromJar) {
         System.out.println("LABIRYNTH loading as " + f);

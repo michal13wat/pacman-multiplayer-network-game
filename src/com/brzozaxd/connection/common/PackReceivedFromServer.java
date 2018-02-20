@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
-/**
- * Created by User on 2017-04-17.
- */
 /*
  *  Nazwa klasy jest logiczna jeżeli patrzy się od strony klieta.
  *  Żeby nie toworzyć nowych klas osobno dla servera, użyję tych.
@@ -23,50 +20,30 @@ public class PackReceivedFromServer<T> implements Serializable {
     public int gameScore;
     public int gameLives;
     public int maxPlayers;
-    
-    // Czy aby na pewno???
+
     private ArrayList<PackToSendToServer> clientFeedback = new ArrayList<>();
     
     public PackReceivedFromServer(){
     }
-    public PackReceivedFromServer(ArrayList<T> objectsList, String additionalInfo,
-                                  ArrayList<String> connectedClients, int notConnectedClients){
-        this.objectsList = objectsList;
-        this.additionalInfo = additionalInfo;
-        this.connectedClients = connectedClients;
-        this.notConnectedClients = notConnectedClients;
-    }
-    
+
     public void clear() {
         objectsList.clear();
         deletedList.clear();
         connectedClients.clear();
         clientFeedback.clear();
         randomizer = null;
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
     
     public void addObject(T obj){
         objectsList.add(obj);
-    }
-    public void addList(ArrayList<T> list){
-        objectsList.addAll(list);
     }
 
     public void addDeletedList(ArrayList<Integer> list) {
         deletedList.addAll(list);
     }
     
-    public void addFeedbacks(ArrayList<PackToSendToServer> list) {
+    public void addFeedback(ArrayList<PackToSendToServer> list) {
         clientFeedback.addAll(list);
-    }
-    
-    public void addFeedback(PackToSendToServer pack) {
-        clientFeedback.add(pack);
-    }
-    
-    public String getAdditionalInfo() {
-        return additionalInfo;
     }
 
     public ArrayList<T> getObjectsList() {
@@ -81,7 +58,7 @@ public class PackReceivedFromServer<T> implements Serializable {
         return clientFeedback;
     }
     
-    public Random getRandomizer() {
+    public Random getRandomized() {
         return randomizer;
     }
     

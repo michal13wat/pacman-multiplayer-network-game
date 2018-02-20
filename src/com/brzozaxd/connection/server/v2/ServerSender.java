@@ -7,67 +7,39 @@ import java.net.Socket;
 public class ServerSender extends Thread {
 
 	private Socket socket = null;
-	protected boolean loopdaloop = true;
-	private final int DELAY = 1000/60;//1;
-    private int thradID;
+	private final int DELAY = 1000/60; //1;
+    private int threadID;
 
-	
-	public ServerSender(Socket socket, int thradID) {
+	ServerSender(Socket socket, int threadID) {
 		super("ServerSender");
 		this.socket = socket;
-        this.thradID = thradID;
+        this.threadID = threadID;
 	}
 
 	public void run() {
-		try (ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-                     //BufferedOutputStream bos = new BufferedOutputStream(out);
-                        ) 
+		try (ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream()))
 		{
-                    int pseudoTimer = 0;
-                    System.out.println("ServerSender in thread " + thradID + " estabilished.");
-		while (loopdaloop) {
-                    //out.flush();
-                    /*if(!ServerBrain.checkIfPackWasSendByThisThread(thradID)){
-                        out.reset();
-
-                        //ServerBrain.packOut.setAdditionalInfo(temp);
-                        //bos.writeObject(ServerBrain.packOut);
-                        out.writeUnshared(ServerBrain.packOut);
-                        //Thread.sleep(5);
-                        out.flush();
-                        ServerBrain.lockBufferingToSendByThisThread(thradID);
-                        ServerBrain.thisThreadReadPackToSend(thradID);  // readPrevPack = false;
-                }*/
-                //////////////////////////////////////////////////////////////////
-                //      UWGAA - POD ŻADNYM POZOREM NIE WYWALAĆ STĄD             //
-                //      PONIŻSZEGO IF-A. JEST ON ODPOWIEDZILANY                 //
-                //      ZA WYSŁANIE CO 3sek. DANYCH DO KLIENTÓW                 //
-                //      KIEDY WSZYCY KLIENCI NIE SĄ PODŁĄCZENI                  //
-                //////////////////////////////////////////////////////////////////
-                if(!ServerBrain.checkIfAllClientsAreConnected()){//) && pseudoTimer > 1000/60){
+			System.out.println("ServerSender in thread " + threadID + " estabilished.");
+		while (true) {
+                if(!ServerBrain.checkIfAllClientsAreConnected()){
                     out.reset();
 
                     ServerBrain.packOut.setNotConnectedClients(ServerBrain.notConnectedClients);
                     ServerBrain.packOut.setConnectedClients(ServerBrain.connectedClients);
                     if(ServerBrain.bytesOut != null){
-                        // TODO - odkomentować linijke poniżej !!!
-                        //out.write(ServerBrain.bytesOut);
                         out.writeUnshared(ServerBrain.packOut);
                     }else {
                         System.out.println("=========  Pusty bufor z danymi wyjściowymi!!!  =========");
                     }
-                    //Thread.sleep(5);
                     out.flush();
-                    pseudoTimer = 0;
-                }
+				}
 				Thread.sleep(DELAY);
-                //pseudoTimer++;
 			}
 
 		} catch (IOException e) {
 			try {
 				socket.close();
-				System.out.println("ServerSender in thread: " + thradID + " stopped: " + e.getMessage());
+				System.out.println("ServerSender in thread: " + threadID + " stopped: " + e.getMessage());
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -76,7 +48,7 @@ public class ServerSender extends Thread {
 		}
 	}
 	
-	public void closeSocket(){
+	void closeSocket(){
 		try {
 			this.socket.close();
 		} catch (IOException e) {

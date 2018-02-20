@@ -3,6 +3,7 @@ package UI;
 
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import game.objects.GameObject;
 import java.io.Serializable;
@@ -16,19 +17,19 @@ public class MenuObject extends GameObject implements Serializable {
     private class MenuOption implements Serializable {
         // Konkretna funkcja do odegrania.
         
-        public void setMenuOption(String name, Callable function) {
+        void setMenuOption(String name, Callable function) {
             this.name = name;
             this.function = function;
         }
         
-        public String getName() {
+        String getName() {
             return name;
         }
         
-        protected String name;
-        protected transient Callable function;
+        String name;
+        transient Callable function;
         
-        public Callable getFunction() {
+        Callable getFunction() {
             return function;
         }
     }
@@ -36,54 +37,54 @@ public class MenuObject extends GameObject implements Serializable {
     private class ButtonPressOption extends MenuOption implements Serializable {
         // Funkcja odgrywana przy wciśnięciu przycisku.
         
-        public void setMenuOption(String name, Callable function, String button) {
+        void setMenuOption(String name, Callable function, String button) {
             super.setMenuOption(name, function);
             this.button = button;
         }
         
-        public String getButton() {
+        String getButton() {
             return button;
         }
         
-        protected String button;
+        String button;
     }
     
     private class StringDisplayOption extends MenuOption implements Serializable {
         // Wyświetlanie String'a.
         
-        public void setMenuOption(String name, Callable function, StringWrapper value, String regex) {
+        void setMenuOption(String name, Callable function, StringWrapper value, String regex) {
             super.setMenuOption(name, function);
             this.value = value;
             this.regex = regex;
         }
         
-        public StringWrapper getWrapper() {
+        StringWrapper getWrapper() {
             return value;
         }
         
-        public String getStringWithRegex() {
+        String getStringWithRegex() {
             if (regex == null) {return getWrapper().value;}
-            if (regex == "allChars") {return getWrapper().value;}
+            if (Objects.equals(regex, "allChars")) {return getWrapper().value;}
 
-            String s = "", val = getWrapper().value;
-            
+            StringBuilder s = new StringBuilder();
+            String val = getWrapper().value;
+
             int k = 0;
             for (int j = 0; j < val.length(); j++)
             {
                 if ((k < regex.length()) && (regex.charAt(k) != ('x'))) {
-                    s += regex.charAt(k);
+                    s.append(regex.charAt(k));
                     j--;
                 }
                 else
-                    s += val.charAt(j);
+                    s.append(val.charAt(j));
                 k++;
-                //System.out.println(s);
             }
             
-            return s;
+            return s.toString();
         }
         
-        public int getRegexLength() {
+        int getRegexLength() {
             if (regex == null) return 0;
             int l = 0;
             for (int i = 0; i < regex.length(); i++) {
@@ -92,21 +93,21 @@ public class MenuObject extends GameObject implements Serializable {
             return l;
         }
         
-        protected String regex;
+        String regex;
         protected StringWrapper value;
     }
     
     private class StringInputOption extends StringDisplayOption implements Serializable {
         // Modyfikacja String'a.
         
-        public void setMenuOption(String name, Callable function, StringWrapper value, String regex, int limit) {
+        void setMenuOption(String name, Callable function, StringWrapper value, String regex, int limit) {
             super.setMenuOption(name, function);
             this.value = value;
             this.regex = regex;
             this.limit = limit;
         }
         
-        public int getLimit() {
+        int getLimit() {
             return limit;
         }
         
@@ -117,7 +118,7 @@ public class MenuObject extends GameObject implements Serializable {
                 || ((c >= '0') && (c <= '9')) || (c == '.'));
         }
         
-        protected int limit;
+        int limit;
     }
     
     private class NumberInputOption extends StringInputOption implements Serializable {
@@ -132,7 +133,7 @@ public class MenuObject extends GameObject implements Serializable {
     private class SpinnerOption extends MenuOption implements Serializable {
         // Zmienianie wartości liczbowej zmiennej.
         
-        public void setMenuOption(String name, Callable function, IntWrapper value, int lbound, int rbound) {
+        void setMenuOption(String name, Callable function, IntWrapper value, int lbound, int rbound) {
             super.setMenuOption(name, function);
             this.valueWrapper = value;
             this.leftBound = lbound;
@@ -148,7 +149,7 @@ public class MenuObject extends GameObject implements Serializable {
             this.blocked = blocked;
         }
         
-        public void addValue(int x) {
+        void addValue(int x) {
             int tmp = valueWrapper.value;
             valueWrapper.value += x;
             
@@ -175,12 +176,12 @@ public class MenuObject extends GameObject implements Serializable {
             return valueWrapper.value;
         }
         
-        public int getBlocked(int i) {
+        int getBlocked(int i) {
             if (blocked == null) return 0;
             return blocked.get(i).value;
         }
         
-        public boolean spinnerFull(String dir) {
+        boolean spinnerFull(String dir) {
             // Blocking certain options.
             if (blocked != null) {
                 for (int i = leftBound; i <= rightBound; i++)
@@ -193,28 +194,26 @@ public class MenuObject extends GameObject implements Serializable {
                         rightBound = i;
                         break;
                     }
-                //System.out.println(leftBound + " " + rightBound);
             }
-            
+
             if (valueWrapper.value > rightBound) valueWrapper.value = rightBound;
             if (valueWrapper.value < leftBound) valueWrapper.value = leftBound;
-            
+
             if (dir.equals("left")) return (valueWrapper.value <= leftBound);
-            if (dir.equals("right")) return (valueWrapper.value >= rightBound);
-            
-            return false;
+            return dir.equals("right") && (valueWrapper.value >= rightBound);
+
         }
         
-        protected ArrayList<IntWrapper> blocked;
-        protected IntWrapper valueWrapper;
-        protected int leftBound, rightBound;
+        ArrayList<IntWrapper> blocked;
+        IntWrapper valueWrapper;
+        int leftBound, rightBound;
     }
     
     private class ImageSpinnerOption extends SpinnerOption implements Serializable {
         // To samo, ale z obrazkiem na każdą liczbę.
         
-        public void setMenuOption(String name, Callable function, IntWrapper value,
-                int lbound, int rbound, ArrayList<Sprite> sprites) {
+        void setMenuOption(String name, Callable function, IntWrapper value,
+                           int lbound, int rbound, ArrayList<Sprite> sprites) {
             super.setMenuOption(name, function,value,lbound,rbound);
             this.valueWrapper = value;
             this.leftBound = lbound;
@@ -222,8 +221,8 @@ public class MenuObject extends GameObject implements Serializable {
             this.sprites = sprites;
         }
         
-        public void setMenuOption(String name, Callable function, IntWrapper value, ArrayList<IntWrapper> blocked,
-                int lbound, int rbound, ArrayList<Sprite> sprites) {
+        void setMenuOption(String name, Callable function, IntWrapper value, ArrayList<IntWrapper> blocked,
+                           int lbound, int rbound, ArrayList<Sprite> sprites) {
             super.setMenuOption(name, function);
             this.valueWrapper = value;
             this.leftBound = lbound;
@@ -236,11 +235,11 @@ public class MenuObject extends GameObject implements Serializable {
             return sprites;
         }
         
-        public Sprite getCurrentSprite(){
+        Sprite getCurrentSprite(){
             return sprites.get(valueWrapper.value);
         }
         
-        public int getMaxWidth(){
+        int getMaxWidth(){
             // Bardzo ważna metoda.
             int maxWidth = 0;
             for (Sprite sprite : sprites) {
@@ -251,7 +250,7 @@ public class MenuObject extends GameObject implements Serializable {
             return maxWidth;
         }
         
-        public int getMaxHeight(){
+        int getMaxHeight(){
             // Także samo.
             int maxHeight = 0;
             for (Sprite sprite : sprites) {
@@ -276,7 +275,7 @@ public class MenuObject extends GameObject implements Serializable {
     
     @Override
     public void stepEvent() {
-        if (firstStep == true) {
+        if (firstStep) {
             visible = true;
             firstStep = false;
         }
@@ -377,64 +376,46 @@ public class MenuObject extends GameObject implements Serializable {
     
     // Dodawanie nowych opcji:
     
-    public void addMenuOption(String name, Callable newFunction) {
+    void addMenuOption(String name, Callable newFunction) {
         MenuOption o = new MenuOption();
         o.setMenuOption(name,newFunction);
         myOptions.add(o);
     }
 
-    public void updateMenuOption(String oldName, String newName){
-        for (int i = 0; i < myOptions.size(); i++){
-            if (myOptions.get(i).getName().equals(oldName)){
-                MenuOption o = new MenuOption();
-                o.setMenuOption(newName, null);
-                myOptions.set(i, o);
-                return;
-            }
-        }
-    }
-    
-    public void addButtonPressOption(String name, Callable newFunction, String button) {
+    void addButtonPressOption(Callable newFunction) {
         ButtonPressOption o = new ButtonPressOption();
-        o.setMenuOption(name,newFunction,button);
+        o.setMenuOption("exitOnQ",newFunction, "q");
         hiddenOptions.add(o);
     }
 
-    public void addStringDisplayOption(String name, Callable newFunction, StringWrapper value, String regex) {
-        StringDisplayOption o = new StringDisplayOption();
-        o.setMenuOption(name,newFunction,value,regex);
-        myOptions.add(o);
-    }
-
-    public void addStringInputOption(String name, Callable newFunction, StringWrapper value, String regex, int limit) {
+    void addStringInputOption(String name, StringWrapper value, int limit) {
         StringInputOption o = new StringInputOption();
-        o.setMenuOption(name,newFunction,value,regex,limit);
+        o.setMenuOption(name, null,value, null,limit);
         myOptions.add(o);
     }
     
-    public void addNumberInputOption(String name, Callable newFunction, StringWrapper value, String regex, int limit) {
+    void addNumberInputOption(StringWrapper value, int limit) {
         NumberInputOption o = new NumberInputOption();
-        o.setMenuOption(name,newFunction,value,regex,limit);
+        o.setMenuOption("Port: ", null,value, null,limit);
         myOptions.add(o);
     }
     
-    public void addSpinnerOption(String name, Callable newFunction, IntWrapper value, int lbound, int rbound) {
+    void addSpinnerOption(String name, IntWrapper value, int rbound) {
         SpinnerOption o = new SpinnerOption();
-        o.setMenuOption(name,newFunction,value,lbound,rbound);
+        o.setMenuOption(name, null,value, 1,rbound);
         myOptions.add(o);
     }
     
-    public void addImageSpinnerOption(String name, Callable newFunction,
-                IntWrapper value, int lbound, int rbound, ArrayList<Sprite> sprites) {
+    void addImageSpinnerOption(IntWrapper value, ArrayList<Sprite> sprites) {
         ImageSpinnerOption o = new ImageSpinnerOption();
-        o.setMenuOption(name,newFunction,value,lbound,rbound,sprites);
+        o.setMenuOption("Character ", null,value, 0, 4,sprites);
         myOptions.add(o);
     }
     
-    public void addImageSpinnerOption(String name, Callable newFunction, ArrayList<IntWrapper> blocked,
-                IntWrapper value, int lbound, int rbound, ArrayList<Sprite> sprites) {
+    void addImageSpinnerOption(ArrayList<IntWrapper> blocked,
+                               IntWrapper value, ArrayList<Sprite> sprites) {
         ImageSpinnerOption o = new ImageSpinnerOption();
-        o.setMenuOption(name,newFunction,value,blocked,lbound,rbound,sprites);
+        o.setMenuOption("Character ", null,value,blocked, 0, 4,sprites);
         myOptions.add(o);
     }
     
@@ -499,14 +480,6 @@ public class MenuObject extends GameObject implements Serializable {
         return newHeight;
     }
 
-    public void hidePrefixMenu(){
-        hiddenPrefix = true;
-    }
-
-    public void showPrefixMenu(){
-        hiddenPrefix = false;
-    }
-    
     private void select(MenuOption o) {
         try {
             Callable f = o.getFunction();
@@ -515,24 +488,24 @@ public class MenuObject extends GameObject implements Serializable {
                 destroy();
             }
         }
-        catch (Exception e) {}
+        catch (Exception ignored) {}
     }
     
-    protected TextObject renderer;
+    private TextObject renderer;
 
     private ArrayList<MenuOption> myOptions, hiddenOptions;
-    protected String fontSource;
-    protected String menuTitle;
-    protected int fontWidth, fontHeight;
-    protected int cursorPos;
+    private String fontSource;
+    private String menuTitle;
+    private int fontWidth, fontHeight;
+    private int cursorPos;
 
-    public void setFont(String src, int w, int h) {
+    void setFont(String src, int w, int h) {
         fontSource = src;
         fontWidth = w;
         fontHeight = h;
     }
     
-    public void setTitle(String s) {
+    void setTitle(String s) {
         if (menuTitle == null) y += fontHeight;
         menuTitle = s;
     }

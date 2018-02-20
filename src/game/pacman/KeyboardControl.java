@@ -7,7 +7,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class KeyboardControl {
-    public KeyboardControl(Game game) {
+    KeyboardControl(Game game) {
         this.game = game;
     }
     
@@ -66,7 +66,7 @@ public class KeyboardControl {
         });
     }
     
-    public void keyboardSetHold() {
+    void keyboardSetHold() {
         if ((!backspaceHold) && (backspacePressed))  backspaceHoldCounter = 20;
         else {
             if (backspaceHoldCounter > 0) backspaceHoldCounter--;
@@ -84,7 +84,7 @@ public class KeyboardControl {
         prevKeyChar = keyChar;
     }
     
-    public boolean keyboardCheck(String key){
+    boolean keyboardCheck(String key){
         // Czy klawisz jest wciśnięty?
         switch (key){
             case "left": return leftPressed;
@@ -100,7 +100,7 @@ public class KeyboardControl {
         return false;
     }
     
-    public boolean keyboardHoldCheck(String key){
+    boolean keyboardHoldCheck(String key){
         // Czy klawisz był wciśnięty ostatnio?
         switch (key) {
             case "left": return leftHold;
@@ -115,13 +115,13 @@ public class KeyboardControl {
         return false;
     }
     
-    public char keyboardCharCheck() {
+    char keyboardCharCheck() {
         if (prevKeyChar == keyChar) return 0;
         return keyChar;
     }
     
-    public String checkPressedKeys(){
-        String pressed = new String();
+    String checkPressedKeys(){
+        String pressed = "";
         if (leftPressed) pressed += "l";       // left arrow
         if (rightPressed) pressed += "r";      // right arrow
         if (upPressed)  pressed += "u";        // up arrow
@@ -133,27 +133,27 @@ public class KeyboardControl {
         return pressed;
     }
     
-    Game game;
+    private Game game;
    
-    protected boolean leftPressed;
-    protected boolean rightPressed;
-    protected boolean upPressed;
-    protected boolean downPressed;
-    protected boolean escapePressed;
-    protected boolean enterPressed;
-    protected boolean qPressed;
-    protected boolean backspacePressed;
+    boolean leftPressed;
+    boolean rightPressed;
+    boolean upPressed;
+    boolean downPressed;
+    boolean escapePressed;
+    boolean enterPressed;
+    boolean qPressed;
+    boolean backspacePressed;
 
-    protected boolean leftHold;
-    protected boolean rightHold;
-    protected boolean upHold;
-    protected boolean downHold;
-    protected boolean escapeHold;
-    protected boolean enterHold;
-    protected boolean qHold;
-    protected boolean backspaceHold;
-    protected int backspaceHoldCounter;
+    private boolean leftHold;
+    private boolean rightHold;
+    private boolean upHold;
+    private boolean downHold;
+    private boolean escapeHold;
+    private boolean enterHold;
+    private boolean qHold;
+    private boolean backspaceHold;
+    private int backspaceHoldCounter;
     
-    protected char prevKeyChar;
-    protected char keyChar;
+    private char prevKeyChar;
+    private char keyChar;
 }

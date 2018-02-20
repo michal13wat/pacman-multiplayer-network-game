@@ -3,7 +3,6 @@ package game.objects;
 
 import java.awt.Graphics2D;
 import java.awt.Color;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -22,14 +21,14 @@ abstract public class ActiveObject extends GameObject implements Serializable {
         xstart = x;
         ystart = y;
         
-        xspeed = 0;
-        yspeed = 0;
+        xSpeed = 0;
+        ySpeed = 0;
         
-        xadd = 0;
-        yadd = 0;
+        xAdd = 0;
+        yAdd = 0;
         
-        xpull = 0;
-        ypull = 0;
+        xPull = 0;
+        yPull = 0;
         
         depth = -1;
     }
@@ -49,7 +48,7 @@ abstract public class ActiveObject extends GameObject implements Serializable {
     
     @Override
     public void drawEvent(Graphics2D g) {
-        if ((visible == false) || (destroyed == true)) return;
+        if ((!visible) || (destroyed)) return;
         
         if (spriteSheet == null) {
             g.setColor(Color.WHITE);
@@ -57,13 +56,13 @@ abstract public class ActiveObject extends GameObject implements Serializable {
         }
         else {
             if (wraparoundEnabled){
-                int xoverflow = collisionMap.getWidth()-(x+imageWidth);
-                int yoverflow = collisionMap.getHeight()-(y+imageHeight);
+                int xOverflow = collisionMap.getWidth()-(x+imageWidth);
+                int yOverflow = collisionMap.getHeight()-(y+imageHeight);
                 
-                drawSpriteChopped(g,x,y,0,0,bounds(0,xoverflow,imageWidth),bounds(0,yoverflow,imageHeight));
-                drawSpriteChopped(g,x,0,0,bounds(0,yoverflow+imageHeight,imageHeight),imageWidth,imageHeight);
-                drawSpriteChopped(g,0,y,bounds(0,xoverflow+imageWidth,imageWidth),0,imageWidth,imageHeight);
-                drawSpriteChopped(g,0,0,bounds(0,xoverflow+imageWidth,imageWidth),bounds(0,yoverflow+imageHeight,imageHeight),imageWidth,imageHeight);
+                drawSpriteChopped(g,x,y,0,0,bounds(0, xOverflow,imageWidth),bounds(0,yOverflow,imageHeight));
+                drawSpriteChopped(g,x,0,0,bounds(0,yOverflow+imageHeight,imageHeight),imageWidth,imageHeight);
+                drawSpriteChopped(g,0,y,bounds(0, xOverflow +imageWidth,imageWidth),0,imageWidth,imageHeight);
+                drawSpriteChopped(g,0,0,bounds(0, xOverflow +imageWidth,imageWidth),bounds(0,yOverflow+imageHeight,imageHeight),imageWidth,imageHeight);
             }
             else drawSpriteFull(g);
         }
@@ -71,114 +70,113 @@ abstract public class ActiveObject extends GameObject implements Serializable {
     
     @Override
     public void destroyEvent() {
-        //
     }
     
-    public void setSpriteSheet(String name, int imageWidth, int imageHeight) {
+    void setSpriteSheet(String name, int imageWidth, int imageHeight) {
         // Zmienia wyznaczony zestaw sprite'ów.
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         
         this.spriteSheet = name;
         
-        bboxLeft = 0;
-        bboxRight = imageWidth;
-        bboxTop = 0;
-        bboxBottom = imageHeight;
+        bBoxLeft = 0;
+        bBoxRight = imageWidth;
+        bBoxTop = 0;
+        bBoxBottom = imageHeight;
     }
     
-    protected void drawSpriteFull(Graphics2D g) {
-        drawSprite(g,getSprites(spriteSheet),x,y,subimageIndex,imageIndex,imageWidth,imageHeight);
+    private void drawSpriteFull(Graphics2D g) {
+        drawSprite(g,getSprites(spriteSheet),x,y, subImageIndex,imageIndex,imageWidth,imageHeight);
     }
         
-    protected void drawSpriteChopped(Graphics2D g, int x, int y, int x1, int y1, int x2, int y2) {
+    private void drawSpriteChopped(Graphics2D g, int x, int y, int x1, int y1, int x2, int y2) {
         g.drawImage(
             getSprites(spriteSheet),
             (int)(scaleMod*(x+xorigin))+screenCenterX,
             (int)(scaleMod*(y+yorigin))+screenCenterY,
             (int)(scaleMod*(x+x2-x1+xorigin))+screenCenterX,
             (int)(scaleMod*(y+y2-y1+yorigin))+screenCenterY,
-            imageWidth*(int)Math.floor(subimageIndex)+x1,imageHeight*(int)Math.floor(imageIndex)+y1,
-            imageWidth*(int)Math.floor(subimageIndex)+x2,imageHeight*(int)Math.floor(imageIndex)+y2,
+            imageWidth*(int)Math.floor(subImageIndex)+x1,imageHeight*(int)Math.floor(imageIndex)+y1,
+            imageWidth*(int)Math.floor(subImageIndex)+x2,imageHeight*(int)Math.floor(imageIndex)+y2,
             null);
     }
     
-    protected ActiveObject getColliding(Class ourClass) {
+    ActiveObject getColliding(Class ourClass) {
         // Zwraca ActiveObject, z którym w tej chwili kolidujemy.
         // Jeśli nie ma żadnego, zwraca null.
         
         ArrayList<GameObject> l = game.getAllObjects(ourClass);
         ActiveObject obj;
-        
-        for (int i = 0; i < l.size(); i++) {
-            obj = (ActiveObject)l.get(i);
+
+        for (GameObject aL : l) {
+            obj = (ActiveObject) aL;
             if ((obj.isTangible()) && (!obj.isDestroyed()) && (collisionCheck(obj))) return obj;
         }
         
         return null;
     }
     
-    protected boolean collisionCheck(int xcheck, int ycheck) {
+    boolean collisionCheck(int xcheck, int ycheck) {
         // Sprawdzanie kolizji, bazowane na zmiennych bbox.
         // Niezbyt precyzyjne.
         
-        if ((wallContact == false) || (collisionMap == null)) return false;
+        if ((!wallContact) || (collisionMap == null)) return false;
         
-        int i = bboxLeft, j;
+        int i = bBoxLeft, j;
         
-        while (i < bboxRight) {
-            j = bboxTop;
+        while (i < bBoxRight) {
+            j = bBoxTop;
             
-            while (j < bboxBottom) {
+            while (j < bBoxBottom) {
                 if (collisionMap.checkCollisionScaled(wraparound(xcheck+i,false),wraparound(ycheck+j,true)))
                     return true;
                 
-                if (j == bboxBottom-1) j = bboxBottom;
-                else j = (int)Math.min(j+(bboxBottom-bboxTop-1)/2,bboxBottom-1);
+                if (j == bBoxBottom -1) j = bBoxBottom;
+                else j = Math.min(j+(bBoxBottom - bBoxTop -1)/2, bBoxBottom -1);
             }
             
-            if (i == bboxBottom-1) i = bboxRight;
-            else i = (int) Math.min(i+(bboxRight-bboxLeft-1)/2,bboxRight-1);
+            if (i == bBoxBottom -1) i = bBoxRight;
+            else i = Math.min(i+(bBoxRight - bBoxLeft -1)/2, bBoxRight -1);
         }
         
         return false;
     }
     
-    protected boolean collisionCheck(ActiveObject other) {
+    private boolean collisionCheck(ActiveObject other) {
         // Sprawdzanie kolizji z innymi obiektami.
         
         if ((other == null) || (other == this)) return false;
         
-        if ((x+this.bboxRight-1 >= other.getX()+other.getBbox("left"))
-            && (x+this.bboxLeft <= other.getX()+other.getBbox("right")-1)) {
-            if ((y+this.bboxTop <= other.getY()+other.getBbox("bottom")-1)
-                    && (y+this.bboxBottom-1 >= other.getY()+other.getBbox("top")))
+        if ((x+this.bBoxRight -1 >= other.getX()+other.getBBox("left"))
+            && (x+this.bBoxLeft <= other.getX()+other.getBBox("right")-1)) {
+            if ((y+this.bBoxTop <= other.getY()+other.getBBox("bottom")-1)
+                    && (y+this.bBoxBottom -1 >= other.getY()+other.getBBox("top")))
                 return true;
         }
         
         return false;
     }
     
-    protected void moveObject() {
+    private void moveObject() {
         // Generalny kod do ruchu.
         // Unika nie-całkowitych pozycji.
+
+        boolean openOnLeft = !collisionCheck(x - 1, y);
+        boolean openOnTop = !collisionCheck(x, y - 1);
+        boolean openOnRight = !collisionCheck(x + 1, y);
+        boolean openOnBottom = !collisionCheck(x, y + 1);
         
-        openOnLeft = !collisionCheck(x-1,y);
-        openOnTop = !collisionCheck(x,y-1);
-        openOnRight = !collisionCheck(x+1,y);
-        openOnBottom = !collisionCheck(x,y+1);
+        xAdd += xSpeed;
+        yAdd += ySpeed;
         
-        xadd += xspeed;
-        yadd += yspeed;
-        
-        while (Math.abs(xadd) >= 1) {
-            if (collisionCheck(x+(int)Math.signum(xadd),y)) {
+        while (Math.abs(xAdd) >= 1) {
+            if (collisionCheck(x+(int)Math.signum(xAdd),y)) {
                 hitWall(false);
-                xadd = 0;
+                xAdd = 0;
             }
             else {
-                x += (int)Math.signum(xadd);
-                xadd = approach(xadd,0,1);
+                x += (int)Math.signum(xAdd);
+                xAdd = approach(xAdd,0,1);
                 
                 if (((!collisionCheck(x,y-1)) && (!openOnTop))
                         || ((!collisionCheck(x,y+1)) && (!openOnBottom)))
@@ -186,28 +184,28 @@ abstract public class ActiveObject extends GameObject implements Serializable {
             }
         }
         
-        while (Math.abs(yadd) >= 1) {
-            if (collisionCheck(x,y+(int)Math.signum(yadd))) {
+        while (Math.abs(yAdd) >= 1) {
+            if (collisionCheck(x,y+(int)Math.signum(yAdd))) {
                 hitWall(true);
-                yadd = 0;
+                yAdd = 0;
             }
             else {
-                y += (int)Math.signum(yadd);
-                yadd = approach(yadd,0,1);
+                y += (int)Math.signum(yAdd);
+                yAdd = approach(yAdd,0,1);
                 
                 if (((!collisionCheck(x-1,y)) && (!openOnLeft))
                   || ((!collisionCheck(x+1,y)) && (!openOnRight))) passedEntrance(false);
             }
         }
         
-        xspeed += xpull;
-        yspeed += ypull;
+        xSpeed += xPull;
+        ySpeed += yPull;
     }
     
-    protected int wraparound(int coord, boolean isVertical) {
+    private int wraparound(int coord, boolean isVertical) {
         // Zwraca koordynaty "owinięte" wokół brzegów mapy.
         
-        if ((wraparoundEnabled == true) && (collisionMap != null)) {
+        if ((wraparoundEnabled) && (collisionMap != null)) {
             if (isVertical) {
                 if (coord > collisionMap.getHeight()) return coord-collisionMap.getHeight();
                 else if (coord < 0) return coord+collisionMap.getHeight();
@@ -222,49 +220,33 @@ abstract public class ActiveObject extends GameObject implements Serializable {
     }
     
     protected void hitWall(boolean isVertical) {
-        //
     }
     
     protected void passedEntrance(boolean isVertical) {
-        //
     }
     
-    String spriteSheet;
-    protected double imageIndex, subimageIndex;
-    protected int imageWidth, imageHeight;
-    protected int bboxLeft, bboxRight, bboxTop, bboxBottom;
+    private String spriteSheet;
+    protected double imageIndex, subImageIndex;
+    private int imageWidth, imageHeight;
+    int bBoxLeft, bBoxRight, bBoxTop, bBoxBottom;
     
-    protected double xspeed, yspeed, xadd, yadd, xpull, ypull;
+    protected double xSpeed, ySpeed, xAdd, yAdd, xPull, yPull;
+
+    boolean wallContact, wraparoundEnabled;
+    boolean tangible;
     
-    protected boolean openOnLeft, openOnTop, openOnRight, openOnBottom;
-    
-    protected boolean wallContact, wraparoundEnabled;
-    protected boolean tangible;
-    
-    public int getBbox(String loc) {
+    private int getBBox(String loc) {
         switch (loc) {
-            case "left": return bboxLeft;
-            case "right": return bboxRight;
-            case "top": return bboxTop;
-            case "bottom": return bboxBottom;
+            case "left": return bBoxLeft;
+            case "right": return bBoxRight;
+            case "top": return bBoxTop;
+            case "bottom": return bBoxBottom;
         }
         
         return 0;
     }
     
-    public boolean isTangible() {
+    private boolean isTangible() {
         return tangible;
-    }
-    
-    public void setMotion(double xspeed, double yspeed) {
-        this.xspeed = xspeed;
-        this.yspeed = yspeed;
-        this.xadd = 0;
-        this.yadd = 0;
-    }
-    
-    public void setAcceleration(double xpull, double ypull) {
-        this.xpull = xpull;
-        this.ypull = ypull;
     }
 }

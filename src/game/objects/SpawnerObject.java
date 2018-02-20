@@ -10,7 +10,7 @@ public class SpawnerObject extends ActiveObject implements Serializable {
     
     @Override
     public void createEvent() {
-        myObjects = new ArrayList();
+        myObjects = new ArrayList<>();
         counter = 0;
     }
     
@@ -46,7 +46,7 @@ public class SpawnerObject extends ActiveObject implements Serializable {
         // Nic nie rysujemy.
     }
     
-    public void setSpawner(Class spawnedObject, int maximumObjects, int interval, int delay, boolean blockable) {
+    void setSpawner(Class spawnedObject, int maximumObjects, int interval, int delay, boolean blockable) {
         this.spawnedObject = spawnedObject;
         this.maximumObjects = maximumObjects;
         this.interval = interval;
@@ -56,7 +56,7 @@ public class SpawnerObject extends ActiveObject implements Serializable {
     
     @Override
     public boolean sendMe() {
-        if (sent == false) {
+        if (!sent) {
             sent = true;
             return true;
         }

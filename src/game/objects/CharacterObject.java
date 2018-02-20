@@ -12,7 +12,7 @@ abstract public class CharacterObject extends ActiveObject {
         wallContact = true;
         
         imageIndex = 0;
-        subimageIndex = 0;
+        subImageIndex = 0;
         
         defaultSpeed = 1.3;
         
@@ -26,17 +26,17 @@ abstract public class CharacterObject extends ActiveObject {
         
         randomFactor = Math.random(); // For that one step.
         
-        if (xspeed+yspeed == 0) subimageIndex = 0; 
+        if (xSpeed+ySpeed == 0) subImageIndex = 0;
         else {
-            double deg = Math.toDegrees(Math.atan2(-yspeed,xspeed));
+            double deg = Math.toDegrees(Math.atan2(-ySpeed,xSpeed));
             
             if (deg < 0) deg += 360;
             
-            if (deg < 45) subimageIndex = 1;
-            else if (deg < 135) subimageIndex = 2;
-            else if (deg < 225) subimageIndex = 3;
-            else if (deg < 315) subimageIndex = 4;
-            else subimageIndex = 1;
+            if (deg < 45) subImageIndex = 1;
+            else if (deg < 135) subImageIndex = 2;
+            else if (deg < 225) subImageIndex = 3;
+            else if (deg < 315) subImageIndex = 4;
+            else subImageIndex = 1;
         }
         
         if (turnCounter > 0)
@@ -46,31 +46,31 @@ abstract public class CharacterObject extends ActiveObject {
     }
     
     protected void stepControl() {
-        if ((hiddenCounter == 0) /*&& (xspeed + yspeed == 0)*/) {
-            if (xspeed + yspeed == 0)
+        if ((hiddenCounter == 0) /*&& (xSpeed + ySpeed == 0)*/) {
+            if (xSpeed + ySpeed == 0)
             {
                 if ((game.keyboardHoldCheck("left",playerId)) && (!game.keyboardHoldCheck("right",playerId)))
-                    xspeed = -defaultSpeed;
+                    xSpeed = -defaultSpeed;
                 else if ((game.keyboardHoldCheck("right",playerId)) && (!game.keyboardHoldCheck("left",playerId)))
-                    xspeed = defaultSpeed;
+                    xSpeed = defaultSpeed;
                 if ((game.keyboardHoldCheck("up",playerId)) && (!game.keyboardHoldCheck("down",playerId)))
-                    yspeed = -defaultSpeed;
+                    ySpeed = -defaultSpeed;
                 else if ((game.keyboardHoldCheck("down",playerId)) && (!game.keyboardHoldCheck("up",playerId)))
-                    yspeed = defaultSpeed;
+                    ySpeed = defaultSpeed;
             }
             else if (turnCounter == 0)
             {
-                double tmpx = xspeed;
-                double tmpy = yspeed;
-                if ((game.keyboardHoldCheck("left",playerId)) && (!game.keyboardHoldCheck("right",playerId)) && (xspeed > 0))
-                    xspeed = -defaultSpeed;
-                else if ((game.keyboardHoldCheck("right",playerId)) && (!game.keyboardHoldCheck("left",playerId)) && (xspeed < 0))
-                    xspeed = defaultSpeed;
-                else if ((game.keyboardHoldCheck("up",playerId)) && (!game.keyboardHoldCheck("down",playerId)) && (yspeed > 0))
-                    yspeed = -defaultSpeed;
-                else if ((game.keyboardHoldCheck("down",playerId)) && (!game.keyboardHoldCheck("up",playerId)) && (yspeed < 0))
-                    yspeed = defaultSpeed;
-                if ((tmpx != xspeed) || (tmpy != yspeed)) turnCounter = 5;
+                double tmpX = xSpeed;
+                double tmpY = ySpeed;
+                if ((game.keyboardHoldCheck("left",playerId)) && (!game.keyboardHoldCheck("right",playerId)) && (xSpeed > 0))
+                    xSpeed = -defaultSpeed;
+                else if ((game.keyboardHoldCheck("right",playerId)) && (!game.keyboardHoldCheck("left",playerId)) && (xSpeed < 0))
+                    xSpeed = defaultSpeed;
+                else if ((game.keyboardHoldCheck("up",playerId)) && (!game.keyboardHoldCheck("down",playerId)) && (ySpeed > 0))
+                    ySpeed = -defaultSpeed;
+                else if ((game.keyboardHoldCheck("down",playerId)) && (!game.keyboardHoldCheck("up",playerId)) && (ySpeed < 0))
+                    ySpeed = defaultSpeed;
+                if ((tmpX != xSpeed) || (tmpY != ySpeed)) turnCounter = 5;
             }
         }
     }
@@ -80,13 +80,13 @@ abstract public class CharacterObject extends ActiveObject {
         y = ystart;
         
         if (!isPlayed){
-            if (Math.random() >= 0.5) xspeed = defaultSpeed;
-            else xspeed = -defaultSpeed;
+            if (Math.random() >= 0.5) xSpeed = defaultSpeed;
+            else xSpeed = -defaultSpeed;
         }
-        else xspeed = 0;
+        else xSpeed = 0;
         
         
-        yspeed = 0;
+        ySpeed = 0;
     }
     
     @Override
@@ -94,36 +94,36 @@ abstract public class CharacterObject extends ActiveObject {
         // Bouncing off walls.
         
         if (isVertical) {
-            double tmp = yspeed;
-            yspeed = 0;
+            double tmp = ySpeed;
+            ySpeed = 0;
             
             if (!collisionCheck(x-1,y)) {
                 // Random factor
                 if (!collisionCheck(x+1,y)) {
-                    if (willTurnRight()) xspeed = defaultSpeed;
-                    else if (willTurnLeft()) xspeed = -defaultSpeed;
+                    if (willTurnRight()) xSpeed = defaultSpeed;
+                    else if (willTurnLeft()) xSpeed = -defaultSpeed;
                 }
-                else if ((mustTurn()) || (willTurnLeft())) xspeed = -defaultSpeed;
+                else if ((mustTurn()) || (willTurnLeft())) xSpeed = -defaultSpeed;
             }
             // No choice
-            else if ((!collisionCheck(x+1,y)) && (mustTurn())) xspeed = defaultSpeed;
-            else if (mustTurn()) yspeed = -tmp;
+            else if ((!collisionCheck(x+1,y)) && (mustTurn())) xSpeed = defaultSpeed;
+            else if (mustTurn()) ySpeed = -tmp;
         }
         else {
-            double tmp = xspeed;
-            xspeed = 0;
+            double tmp = xSpeed;
+            xSpeed = 0;
             
             if (!collisionCheck(x,y-1)) {
                 // Random factor
                 if (!collisionCheck(x,y+1)) {
-                    if (willTurnDown()) yspeed = defaultSpeed;
-                    else if (willTurnUp()) yspeed = -defaultSpeed;
+                    if (willTurnDown()) ySpeed = defaultSpeed;
+                    else if (willTurnUp()) ySpeed = -defaultSpeed;
                 }
-                else if ((mustTurn()) || (willTurnUp())) yspeed = -defaultSpeed;
+                else if ((mustTurn()) || (willTurnUp())) ySpeed = -defaultSpeed;
             }
             // No choice
-            else if ((!collisionCheck(x,y+1)) && (mustTurn())) yspeed = defaultSpeed;
-            else  if (mustTurn()) xspeed = -tmp;
+            else if ((!collisionCheck(x,y+1)) && (mustTurn())) ySpeed = defaultSpeed;
+            else  if (mustTurn()) xSpeed = -tmp;
         }
     }
     
@@ -134,39 +134,27 @@ abstract public class CharacterObject extends ActiveObject {
         if (!mayEnter()) return;
         
         if (isVertical) {
-            xspeed = 0;
-            xadd = 0;
+            xSpeed = 0;
+            xAdd = 0;
             
-            if ((!collisionCheck(x,y-1)) && (willEnterUp())) yspeed = -defaultSpeed;
-            else if ((!collisionCheck(x,y+1)) && (willEnterDown())) yspeed = defaultSpeed;
+            if ((!collisionCheck(x,y-1)) && (willEnterUp())) ySpeed = -defaultSpeed;
+            else if ((!collisionCheck(x,y+1)) && (willEnterDown())) ySpeed = defaultSpeed;
         }
         else {
-            yspeed = 0;
-            yadd = 0;
+            ySpeed = 0;
+            yAdd = 0;
             
-            if ((!collisionCheck(x-1,y)) && (willEnterLeft())) xspeed = -defaultSpeed;
-            else if ((!collisionCheck(x+1,y)) && (willEnterRight())) xspeed = defaultSpeed;
+            if ((!collisionCheck(x-1,y)) && (willEnterLeft())) xSpeed = -defaultSpeed;
+            else if ((!collisionCheck(x+1,y)) && (willEnterRight())) xSpeed = defaultSpeed;
         }
     }
-    
-    protected void createPin(String txt) {
-        // Create a text label that will follow the character.
-        playerPin = (PinnedTextObject)createObject(PinnedTextObject.class,x,y);
-        playerPin.loadFont("/resources/pac_font_sprites.png",8,8);
-        playerPin.setText(txt);
-        playerPin.setPin(this,0,-8);
-        
-        pinCounter = waitForPin;
-        pinState = 0;
-        
-        pinControl();
-    }
-    
-    protected void pinControl() {
+
+    private void pinControl() {
         // Nothing interesting here...
-        if (visible == false) {
+        int waitForPin = 200;
+        if (!visible) {
             playerPin.setVisible(false);
-            pinCounter = waitForPin/8;
+            pinCounter = waitForPin /8;
             pinState = 0;
         }
         
@@ -180,6 +168,7 @@ abstract public class CharacterObject extends ActiveObject {
                 if (pinFlicker > 0) {
                     pinFlicker--;
                     playerPin.setVisible(!playerPin.getVisible());
+                    int pinFlickerTime = 10;
                     pinCounter = pinFlickerTime;
                 }
                 else {
@@ -188,6 +177,7 @@ abstract public class CharacterObject extends ActiveObject {
                 }
             }
             else if (pinState == 0) {
+                int pinMaxFlickers = 5;
                 pinFlicker = pinMaxFlickers;
                 pinState = 1;
             }
@@ -196,56 +186,47 @@ abstract public class CharacterObject extends ActiveObject {
     
     // Following functions implement either keyboard, or randomness.
     // Bouncing off walls.
-    protected boolean mustTurn() {
+    private boolean mustTurn() {
         return !isPlayed;
     }
-    protected boolean willTurnLeft(){
+    private boolean willTurnLeft(){
         return !isPlayed ? (randomFactor >= 0.5) : game.keyboardHoldCheck("left",playerId);
     }
-    protected boolean willTurnRight(){
+    private boolean willTurnRight(){
         return !isPlayed ? (randomFactor < 0.5) : game.keyboardHoldCheck("right",playerId);
     }
-    protected boolean willTurnUp(){
+    private boolean willTurnUp(){
         return !isPlayed ? (randomFactor >= 0.5) : game.keyboardHoldCheck("up",playerId);
     }
-    protected boolean willTurnDown(){
-        return !isPlayed ? (randomFactor < 0.5) : game.keyboardHoldCheck("down",playerId);
-    }
+    private boolean willTurnDown(){return !isPlayed ? (randomFactor < 0.5) : game.keyboardHoldCheck("down",playerId);}
     // Going into entrances.
-    protected boolean mayEnter(){
-        return isPlayed ? true : (randomFactor >= 0.5);
+    private boolean mayEnter(){
+        return isPlayed || (randomFactor >= 0.5);
     }
-    protected boolean willEnterLeft(){
-        return isPlayed ? game.keyboardHoldCheck("left",playerId) : true;
+    private boolean willEnterLeft(){
+        return !isPlayed || game.keyboardHoldCheck("left", playerId);
     }
-    protected boolean willEnterRight(){
-        return isPlayed ? game.keyboardHoldCheck("right",playerId) : true;
+    private boolean willEnterRight(){
+        return !isPlayed || game.keyboardHoldCheck("right", playerId);
     }
-    protected boolean willEnterUp(){
-        return isPlayed ? game.keyboardHoldCheck("up",playerId) : true;
+    private boolean willEnterUp(){
+        return !isPlayed || game.keyboardHoldCheck("up", playerId);
     }
-    protected boolean willEnterDown(){
-        return isPlayed ? game.keyboardHoldCheck("down",playerId) : true;
+    private boolean willEnterDown(){
+        return !isPlayed || game.keyboardHoldCheck("down", playerId);
     }
+
+
+    boolean isPlayed;
+    double defaultSpeed;
+    private double randomFactor;
+    int hiddenCounter;
+    private int turnCounter;
     
+    int playerId;
     
-    public boolean isPlayed(){
-        return isPlayed;
-    }
-    
-    public void setIsPlayed(boolean isPlayed){
-        this.isPlayed = isPlayed;
-    }
-    
-    protected boolean isPlayed;
-    protected double defaultSpeed;
-    protected double randomFactor;
-    protected int hiddenCounter;
-    protected int turnCounter;
-    
-    protected int playerId;
-    
-    PinnedTextObject playerPin = null;
-    int waitForPin = 200, pinFlickerTime = 10, pinCounter = 0, pinState = 0;
-    int pinMaxFlickers = 5, pinFlicker = 0;
+    private PinnedTextObject playerPin = null;
+    private int pinCounter = 0;
+    private int pinState = 0;
+    private int pinFlicker = 0;
 }

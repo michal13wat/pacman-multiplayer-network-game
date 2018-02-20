@@ -15,7 +15,6 @@ public class ClientBrain extends Thread {
 
     public static com.brzozaxd.connection.common.PackReceivedFromServer<GameObject> recPac;
     private static volatile ArrayList<String> connectedClientsBuffer = new ArrayList<>();
-    private static volatile int notConnectedClientsAmountBuffer = -1;
 
     private boolean running = true;
     
@@ -56,7 +55,6 @@ public class ClientBrain extends Thread {
                 connectedClientsBuffer.add(recConnClient);
             }
         }
-        notConnectedClientsAmountBuffer = notConnected;
     }
 
     private String precessAddressIP(String addressIP){

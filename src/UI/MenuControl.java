@@ -19,7 +19,6 @@ import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-//import pacman.*;
 
 // Od teraz, w tej klasie jest wszystko związane z ustawieniami Menu.
 
@@ -73,10 +72,6 @@ public class MenuControl {
                 gameLobbyMenu();
             }
             break;
-//            case "display_connected_players": {
-//                displayConnectedClients();
-//            }
-//            break;
         }
     }
     
@@ -106,25 +101,20 @@ public class MenuControl {
                 game.close();
                 return 1;
             });
-        startMenu.addButtonPressOption("exitOnQ",()-> {
+        startMenu.addButtonPressOption(()-> {
                     game.close();
                     return 1;
-                }, "q" );
+                });
     }
     
     private void stageSelectMenu() {
         MenuObject stageSelectMenu = (MenuObject)createObject(MenuObject.class);
         stageSelectMenu.setFont("pac_font_sprites",8,8);
         stageSelectMenu.setTitle("SINGLE PLAYER");
-        
-        /*sprites.add(new Sprite("pac_font_sprites",21,3,8,8));
-        sprites.add(new Sprite("pac_font_sprites",22,3,8,8));
-        sprites.add(new Sprite("pac_font_sprites",23,3,8,8));
-        sprites.add(new Sprite("pac_font_sprites",24,3,8,8));
-        sprites.add(new Sprite("pac_font_sprites",25,3,8,8));*/
-        stageSelectMenu.addImageSpinnerOption("Character ", null, game.chosenCharacter, 0, 4, sprites);
-        stageSelectMenu.addSpinnerOption("Lives ",null,game.startingLives,1,5);
-        stageSelectMenu.addSpinnerOption("Ghosts ", null, game.ghostsAmount, 1, 4);
+
+        stageSelectMenu.addImageSpinnerOption(game.chosenCharacter, sprites);
+        stageSelectMenu.addSpinnerOption("Lives ", game.startingLives, 5);
+        stageSelectMenu.addSpinnerOption("Ghosts ", game.ghostsAmount, 4);
 
         // Ładowanie wszystkich plików .txt z "/resources/stages" jako poziomy.
         try
@@ -198,7 +188,6 @@ public class MenuControl {
                     }
 
                     // Nowy Callable.
-                    final File finalFile = f;
                     stageSelectMenu.addMenuOption(stageName,() -> {
                                 LabyrinthObject l = (LabyrinthObject)createObject(LabyrinthObject.class);
                                 l.setSource(f.getPath(),false);
@@ -207,7 +196,7 @@ public class MenuControl {
                 }
             }
         }
-        catch (Exception e)
+        catch (Exception ignored)
         {}
 
         stageSelectMenu.addMenuOption("BACK", () -> {
@@ -215,10 +204,10 @@ public class MenuControl {
                 return 1;
             });
 
-        stageSelectMenu.addButtonPressOption("exitOnQ",()-> {
+        stageSelectMenu.addButtonPressOption(()-> {
                     gotoMenu("start");
                     return 1;
-                }, "q" );
+                });
     }
     
     private void serverSetupMenu() {
@@ -238,10 +227,10 @@ public class MenuControl {
                 gotoMenu("start");
                 return 1;
             });
-        menu.addButtonPressOption("exitOnQ",()-> {
+        menu.addButtonPressOption(()-> {
                     gotoMenu("start");
                     return 1;
-                }, "q" );
+                });
     }
 
     private void createGameMenu() {
@@ -255,25 +244,22 @@ public class MenuControl {
             Game.ipString.value = "127.0.0.1";
             //portString.value - takie jak zostało odczytane z MENU, czyli bez zmian
             Game.playerNumber.value = 0;
-            //game.getExecutor().submit(game.callableStartClient);
-            //game.halt();
             
             game.startClient(Game.ipString.value, Game.portString.value, Game.playerNumber.value);
             return 1;
         });
-        
-        //menu.addSpinnerOption("Plrs Amout: ", null, game.playersAmount, 1, 4);
-        menu.addStringInputOption("Name: ", null, game.playerName, null, 7);
-        menu.addNumberInputOption("Port: ",null,Game.portString,null,5);
+
+        menu.addStringInputOption("Name: ", game.playerName, 7);
+        menu.addNumberInputOption(Game.portString, 5);
 
         menu.addMenuOption("BACK", () -> {
             gotoMenu("server_setup");
             return 1;
         });
-        menu.addButtonPressOption("exitOnQ",()-> {
+        menu.addButtonPressOption(()-> {
             gotoMenu("server_setup");
             return 1;
-        }, "q" );
+        });
     }
     
     private void joinGameMenu() {
@@ -281,32 +267,23 @@ public class MenuControl {
         menu.setFont("pac_font_sprites",8,8);
         menu.setTitle("JOIN GAME");
 
-        //menu.addNumberInputOption("IP: ",null,ipString,"xxx.xxx.x.xx",9);
         menu.addMenuOption("Join",() -> {
-            // TODO - UWAGA - na koniec wywalić poniższą linijkę, bo docelowo ma być bez zmian!!!
-            // TODO - takie jak zostało odczytane z MENU !!!
-            //Game.ipString.value = "localhost";
-//            portString.value - takie jak zostało odczytane z MENU, czyli bez zmian
-//            playerNumber.value - takie jak zostało odczytane z MENU, czyli bez zmian
-            //game.getExecutor().submit(game.callableStartClient);
-            //game.halt();
-            
             game.startClient(Game.ipString.value, Game.portString.value, Game.playerNumber.value);
-            
             return 1;
         });
-        menu.addStringInputOption("Name: ", null, game.playerName, null, 7);
-        menu.addSpinnerOption("Player ID: ", null, Game.playerNumber, 1, 3);
-        menu.addStringInputOption("IP: ",null,Game.ipString,null,14/*,"xxx.xxx.x.xx",9*/);
-        menu.addNumberInputOption("Port: ",null,Game.portString,null,4);
+
+        menu.addStringInputOption("Name: ", game.playerName, 7);
+        menu.addSpinnerOption("Player ID: ", Game.playerNumber, 3);
+        menu.addStringInputOption("IP: ", Game.ipString, 14/*,"xxx.xxx.x.xx",9*/);
+        menu.addNumberInputOption(Game.portString, 4);
         menu.addMenuOption("BACK", () -> {
             gotoMenu("server_setup");
             return 1;
         });
-        menu.addButtonPressOption("exitOnQ",()-> {
+        menu.addButtonPressOption(()-> {
             gotoMenu("server_setup");
             return 1;
-        }, "q" );
+        });
     }
     
     private void gameLobbyMenu() {
@@ -315,12 +292,12 @@ public class MenuControl {
         menu.setFont("pac_font_sprites",8,8);
         menu.setTitle("GAME LOBBY");
 
-        menu.addImageSpinnerOption("Character ", null, game.characterBlocked,
-                                        game.chosenCharacter, 0, 4, sprites);
+        menu.addImageSpinnerOption(game.characterBlocked,
+                                        game.chosenCharacter, sprites);
         menu.addMenuOption("READY",() -> {
             
             ClientGame clientGame = (ClientGame)game;
-            clientGame.setReady(true);
+            clientGame.setReady();
             gotoMenu("game_lobby");
             
             return 1;
@@ -329,117 +306,12 @@ public class MenuControl {
             game.close();
             return 1;
         });
-        menu.addButtonPressOption("exitOnQ",()-> {
+        menu.addButtonPressOption(()-> {
             game.close();
             return 1;
-        }, "q" );
+        });
     }
 
-//    public void displayConnectedClients(){
-//        System.out.print("Ekran oczekiwania na graczy\n");
-//
-//        MenuObject menu = (MenuObject)createObject(MenuObject.class);
-//        menu.hidePrefixMenu();
-//        menu.setFont("pac_font_sprites",8,8);
-//        menu.setTitle("Connected:");
-//
-//        // Czekaj na odebranie danych z serwera
-//        while (ClientBrain.getNotConnectedClientsAmountBuffer() < 0){
-//            System.out.println("Liczba niepodłączonych klientów = " +
-//                    ClientBrain.getNotConnectedClientsAmountBuffer());
-//            try{ Thread.sleep(500);}
-//            catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//
-//        }
-//
-//        for (int i = 0; i < 4; i++){
-//            menu.addMenuOption("-", null);
-//        }
-//        //menu.addStringDisplayOption("- ", null, null, "- xxxxxxxx");
-////        menu.addMenuOption("- Michal", null);
-////        menu.addMenuOption("- Jan", null);
-////        menu.addMenuOption("- Jakub", null);
-////        menu.addMenuOption("- ", null);
-//
-//        menu.updateMenuOption("-", "- asdf");
-//        menu.addMenuOption("", null);       //  enter
-//        menu.addMenuOption("", null);       //  enter
-//        menu.addMenuOption("Waiting for: " + 0, null);
-//        menu.addMenuOption("player", null);
-//
-//
-//        menu.addButtonPressOption("exitOnQ",()-> {
-//                game.close();
-//                return 1;
-//            }, "q" );
-//    }
-
-    
-    /*private void displayConnectedClients() {
-        PackReceivedFromServer pack;
-        
-        //int players = game.playersAmount.value;
-        
-        System.out.println("IN LOBBY");
-        
-        MenuObject menu = (MenuObject)createObject(MenuObject.class);
-        menu.hidePrefixMenu();
-        menu.setFont("pac_font_sprites",8,8);
-        menu.setTitle("Connected:");
-        for (int i = 0; i < game.getMaxPlayersAmount(); i++){
-            menu.addStringDisplayOption("- ", null, null, "- xxxxxxxx");
-        }
-//        menu.addMenuOption("- Michal", null);
-//        menu.addMenuOption("- Jan", null);
-//        menu.addMenuOption("- Jakub", null);
-//        menu.addMenuOption("- ", null);
-        menu.addMenuOption("", null);       //  enter
-        menu.addMenuOption("", null);       //  enter
-        menu.addMenuOption("Waiting for: " + 0, null);
-        menu.addMenuOption("player", null);
-
-        //menu.addButtonPressOption("exitOnQ",()-> {
-        //        game.close();
-        //        return 1;
-        //    }, "q" );
-    }*/
-
-    /*private void displayConnectedClientsOld() {
-        PackReceivedFromServer pack;
-        while (Game.packReceivedFromServer == null);   // czekaj aż klient coś odbierze z serwera i dopiero to wypisz
-        pack = Game.packReceivedFromServer;
-        
-        //int players = game.playersAmount.value;
-        
-        System.out.println("IN LOBBY");
-        
-        MenuObject menu = (MenuObject)createObject(MenuObject.class);
-        menu.hidePrefixMenu();
-        menu.setFont("pac_font_sprites",8,8);
-        menu.setTitle("Connected:");
-        for (int i = 0; i < pack.getConnectedClients().size(); i++){
-            menu.addMenuOption("- " + pack.getConnectedClients().get(i), null);
-        }
-        for (int i = 0; i < pack.getNotConnectedClients(); i++){
-            menu.addMenuOption("- ", null);
-        }
-//        menu.addMenuOption("- Michal", null);
-//        menu.addMenuOption("- Jan", null);
-//        menu.addMenuOption("- Jakub", null);
-//        menu.addMenuOption("- ", null);
-        menu.addMenuOption("", null);       //  enter
-        menu.addMenuOption("", null);       //  enter
-        menu.addMenuOption("Waiting for: " + pack.getNotConnectedClients(), null);
-        menu.addMenuOption("player", null);
-
-        menu.addButtonPressOption("exitOnQ",()-> {
-                game.close();
-                return 1;
-            }, "q" );
-    }*/
-    
-    Game game;
-    ArrayList<Sprite> sprites = new ArrayList();
+    private Game game;
+    private ArrayList<Sprite> sprites = new ArrayList();
 }

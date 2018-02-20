@@ -1,8 +1,5 @@
 package com.brzozaxd.connection.common;
 
-/**
- * Created by User on 2017-04-17.
- */
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
@@ -17,37 +14,20 @@ public class MyServer extends Thread {
     // Dla każdego z nich robi nowy ServerThread.
     
     private ExecutorService executor;
-    ServerSocketChannel serverSocket;
+    private ServerSocketChannel serverSocket;
     
-    int port;
-    boolean running = true;
+    private int port;
+    private boolean running = true;
     
     private static int clientAmount;
 
-    ArrayList<ServerThread> serverThreads = new ArrayList<>();
+    private ArrayList<ServerThread> serverThreads = new ArrayList<>();
 
     public MyServer(int port, int clientAm) {
         
         clientAmount = clientAm;
         executor = Executors.newFixedThreadPool(clientAm);
         this.port = port;
-        
-        // Usunięte gdyż:
-        // Implementuje stary sposób tworzenia wątków
-        // (tzn. liczba na sztywno, każdy na innym porcie).
-        
-        /*ServerThread.setPort(port);
-        for (int i = 0; i < clientAmount; i++) {
-            ServerThread temp = new ServerThread();
-//            temp.setPriority(Thread.MAX_PRIORITY);
-            serverThreads.add(temp);
-            temp.start();
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-            } catch (InterruptedException e) {
-                System.out.print("SERWER - złapano wyjątek związany z opóźnieniem tworzenia wątku klienta\n");
-            }
-        }*/
         
         try
         {
@@ -75,7 +55,7 @@ public class MyServer extends Thread {
             {
                 try
                 {
-                    ServerThread temp = new ServerThread(serverSocket.accept(),port);
+                    ServerThread temp = new ServerThread(serverSocket.accept());
                     serverThreads.add(temp);
                     executor.submit(temp);
                 }
@@ -97,7 +77,7 @@ public class MyServer extends Thread {
         return clientAmount;
     }
     
-    public void killThreads() {
+    private void killThreads() {
         for (ServerThread thread : serverThreads) {
             thread.stopThread();
         }
@@ -110,10 +90,6 @@ public class MyServer extends Thread {
         killThreads();
         try
         {serverSocket.close();}
-        catch (Exception e) {}
-    }
-    
-    public int getMaxPlayers() {
-        return clientAmount;
+        catch (Exception ignored) {}
     }
 }

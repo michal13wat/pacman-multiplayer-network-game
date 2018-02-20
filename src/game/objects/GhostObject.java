@@ -13,7 +13,7 @@ public class GhostObject extends CharacterObject implements Serializable {
         
         myColor = 0;
         imageIndex = 0;
-        subimageIndex = 0;
+        subImageIndex = 0;
         
         //defaultSpeed = 1.3;
         defaultSpeed = 0.75;
@@ -27,10 +27,10 @@ public class GhostObject extends CharacterObject implements Serializable {
         
         ArrayList<GameObject> allGhosts = game.getAllObjects(this.getClass());
         GhostObject otherGhost = null;
-        
-        for (int i = 0; i < allGhosts.size(); i++) {
-            otherGhost = (GhostObject)allGhosts.get(i);
-            if ((otherGhost != this) && (otherGhost.myColor == myColor)) myColor ++;
+
+        for (GameObject allGhost : allGhosts) {
+            otherGhost = (GhostObject) allGhost;
+            if ((otherGhost != this) && (otherGhost.myColor == myColor)) myColor++;
         }
     }
     
@@ -39,8 +39,6 @@ public class GhostObject extends CharacterObject implements Serializable {
         if (game.getGhostPlayer(myColor) >= 0) {
             isPlayed = true;
             playerId = game.getGhostPlayer(myColor);
-            //game.setPlayedGhostCreated(true);
-            //createPin("P1");
         }
         else isPlayed = false;
     }
@@ -68,7 +66,7 @@ public class GhostObject extends CharacterObject implements Serializable {
             hiddenCounter --;
             if (hiddenCounter == 34) {
                 ParticleObject o = (ParticleObject)createObject(ParticleObject.class,xstart,ystart);
-                o.setParticle("pac_particle_sprites",16,16,2,8,0.2);
+                o.setParticle(2,8,0.2);
                 o.setDepth(-10);
             }
             else if (hiddenCounter == 0) resetPosition();
@@ -103,84 +101,28 @@ public class GhostObject extends CharacterObject implements Serializable {
         y = ystart;
         
         if (!isPlayed){
-            if (Math.random() >= 0.5) xspeed = defaultSpeed;
-            else xspeed = -defaultSpeed;
+            if (Math.random() >= 0.5) xSpeed = defaultSpeed;
+            else xSpeed = -defaultSpeed;
         }
         
         
         
-        yspeed = 0;
+        ySpeed = 0;
     }
-    public void getCaught(CharacterObject obj) {
+    private void getCaught(CharacterObject obj) {
         scareCounter = 0;
         hiddenCounter = 100;
         
         ParticleObject o = (ParticleObject)createObject(ParticleObject.class,x,y);
-        o.setParticle("pac_particle_sprites",16,16,1,7,0.2);
+        o.setParticle(1,7,0.2);
         o.setDepth(-2);
     }
-    /*
-    // Has to turn at all times.
-    @Override
-    protected boolean mustTurn() {
-        return true;
-    }
-    
-    // Alternates between L/R.
-    @Override
-    protected boolean willTurnLeft() {
-        return (randomFactor >= 0.5);
-    }
-    
-    @Override
-    protected boolean willTurnRight() {
-        return (randomFactor < 0.5);
-    }
-    
-    // Alternates between U/D.
-    @Override
-    protected boolean willTurnUp() {
-        return (randomFactor >= 0.5);
-    }
-    
-    @Override
-    protected boolean willTurnDown() {
-        return (randomFactor < 0.5);
-    }
-    
-    // Doesn't necessarily go into entrances.
-    @Override
-    protected boolean mayEnter() {
-        return (randomFactor >= 0.5);
-    }
-    
-    // But if he decides so, he doesn't differentiate.
-    @Override
-    protected boolean willEnterLeft() {
-        return true;
-    }
-    
-    @Override
-    protected boolean willEnterRight() {
-        return true;
-    }
-    
-    @Override
-    protected boolean willEnterUp() {
-        return true;
-    }
-    
-    @Override
-    protected boolean willEnterDown() {
-        return true;
-    }
-    */
    
-    protected int scareCounter;
-    protected int hiddenCounter;
-    protected int myColor;
+    private int scareCounter;
+    private int hiddenCounter;
+    private int myColor;
     
-    public void scare(int time) {
+    void scare(int time) {
         scareCounter = time;
     }
     

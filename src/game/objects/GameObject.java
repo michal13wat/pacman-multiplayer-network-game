@@ -26,7 +26,6 @@ abstract public class GameObject implements Serializable {
     public boolean sendMe(){return true;}
     
     public void setPlayed(){
-        //Nop()
     }
     
     public void destroy() {
@@ -45,17 +44,11 @@ abstract public class GameObject implements Serializable {
         return o;
     }
     
-    protected int bounds(int x, int y, int z) {
+    int bounds(int x, int y, int z) {
         return Math.min(Math.max(y,x),z);
     }
-    
-    protected int approach(int from, int to, int by) {
-        if (from > to) return (Math.max(to,from-by));
-        
-        return (Math.min(to,from+by));
-    }
-    
-    protected double approach(double from, double to, double by) {
+
+    double approach(double from, double to, double by) {
         if (from > to) return (Math.max(to,from-by));
         
         return (Math.min(to,from+by));
@@ -82,7 +75,7 @@ abstract public class GameObject implements Serializable {
     
     protected int depth = 0;
     
-    protected int id = 0;
+    private int id = 0;
     
     protected int x, y, xstart, ystart;
     protected int xorigin, yorigin;
@@ -94,13 +87,13 @@ abstract public class GameObject implements Serializable {
     protected int screenCenterX = 0, screenCenterY = 0;
     protected transient Game game;
     
-    protected boolean destroyed;
-    protected boolean disposable = false;
-    protected boolean sent = false;
+    boolean destroyed;
+    private boolean disposable = false;
+    boolean sent = false;
     
-    protected transient LabyrinthObject collisionMap = null;
+    transient LabyrinthObject collisionMap = null;
     
-    public Image getSprites(String name) {
+    protected Image getSprites(String name) {
         return game.getSpriteSheet(name);
     }
     
@@ -154,12 +147,12 @@ abstract public class GameObject implements Serializable {
         this.screenCenterY = y;
     }
     
-    public void setOrigin(int x, int y) {
+    void setOrigin(int x, int y) {
         this.xorigin = x;
         this.yorigin = y;
     }
     
-    public void setDepth(int d) {
+    void setDepth(int d) {
         depth = d;
     }
     
@@ -174,7 +167,6 @@ abstract public class GameObject implements Serializable {
     public void setCollisionMap(LabyrinthObject collisionMap) {
         this.collisionMap = collisionMap;
     }
-    
-    public void setId(int x) {id = x;};
-    public int getId() {return id;};
+
+    public int getId() {return id;}
 }

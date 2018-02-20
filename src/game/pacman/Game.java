@@ -1,23 +1,15 @@
 package game.pacman;
 
-//import ServerBrain;
-
 import java.awt.*;
 import java.awt.image.*;
 import javax.swing.*;
-
 import java.util.*;
-
 import java.io.*;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.brzozaxd.connection.server.v2.ServerBrain;
-import com.brzozaxd.connection.client.v2.ClientBrain;
 import game.objects.*;
-//import gameObjects.*;
 import java.net.URL;
 import javax.imageio.ImageIO;
 import UI.*;
@@ -62,7 +54,7 @@ public class Game extends Thread
         objectList = new ArrayList();
         
         // Window init.
-        windowInit(false);
+        windowInit();
         preloadSprites();
         // Keyboard init.
         keyboardControl.keyboardInit();
@@ -74,14 +66,14 @@ public class Game extends Thread
         gameLoop();
     }
     
-    protected void windowInit(boolean fullscreen) {
+    private void windowInit() {
         // Nowe JFrame z pojedynczym JPanel'em.
         gameWindow = new JFrame("PACMAN");
         
         URL dirURL = getClass().getResource("/resources/stages");
         isJar = (dirURL.getProtocol().equals("jar"));
         
-        gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gameWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         
         Insets tmp_ins = gameWindow.getInsets();
         gameWindow.setSize(
@@ -92,9 +84,6 @@ public class Game extends Thread
         
         gameRenderer = new JPanel();
         gameWindow.add("Center",gameRenderer);
-        
-        // Pełen ekran.
-        if (fullscreen) gameWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
     
     protected void wrapperInit() {
@@ -113,13 +102,7 @@ public class Game extends Thread
             ghostPlayer[i] = new IntWrapper(-1);
     }
     
-    protected void preloadSprites() {
-        
-        /*sprites.add(new Sprite("/resources/pac_hero_sprites.png",0,0,16,16));
-        sprites.add(new Sprite("/resources/pac_ghost_sprites.png",0,0,16,16));
-        sprites.add(new Sprite("/resources/pac_ghost_sprites.png",0,1,16,16));
-        sprites.add(new Sprite("/resources/pac_ghost_sprites.png",0,2,16,16));
-        sprites.add(new Sprite("/resources/pac_ghost_sprites.png",0,3,16,16));*/
+    void preloadSprites() {
         
         try {
             
@@ -130,8 +113,8 @@ public class Game extends Thread
             spriteSheets.put("pac_labyrinth_tileset",ImageIO.read(getClass().getResource("/resources/pac_labyrinth_tileset.png")));
             spriteSheets.put("pac_font_sprites",ImageIO.read(getClass().getResource("/resources/pac_font_sprites.png")));
         }
-        catch (Exception e) {}
-        
+        catch (Exception ignored) {}
+
     }
     
     //////////////////////////////////////////////////////////////////////
@@ -166,7 +149,7 @@ public class Game extends Thread
         gameWindow.dispose();
     }
     
-    protected void gameStep() {
+    void gameStep() {
         // Uruchamia kod "stepEvent" dla każdego obiektu,
         // zmieniając jego stan. Kasuje "zniszczone" obiekty.
         
@@ -192,7 +175,7 @@ public class Game extends Thread
             keyboardControlRemote.get(player).keyboardSetHold();
     }
     
-    protected void gameDraw() {
+    void gameDraw() {
         // Podobnie do gameStep, tyle, że rysuje wszystkie
         // obiekty zamiast wywoływać kod do zmiany ich stanów.
         if ((clientGame != null) || (halted)) return;
@@ -223,7 +206,7 @@ public class Game extends Thread
     // Inne metody związane z pętlą gry.
     //////////////////////////////////////////////////////////////////////
     
-    protected void setSize() {
+    private void setSize() {
         // Setting the size according to window dimensions and labyrinth / menu height.
         LabyrinthObject labirynth;
         MenuObject menu;
@@ -332,7 +315,7 @@ public class Game extends Thread
         
         System.out.println("Labirynt: "+fileName);
         
-        if (fromJar == true) {
+        if (fromJar) {
             try {fi = (getClass().getResourceAsStream(fileName));}
             catch (Exception e) {System.out.println("Błąd w ładowaniu labiryntu.");}
         }
@@ -343,13 +326,12 @@ public class Game extends Thread
         
         return fi;
     }
-    
+
     public void halt() {
         // Zatrzymuje grę, tak, że nie robi żadnych Step/Draw Events.
     }
-    
+
     public void endGame(boolean victory) {
-        isPlayedGhostCreated = false;
         GameObject labirynt = getObject(LabyrinthObject.class);
         labirynt.destroy();
         
@@ -412,12 +394,12 @@ public class Game extends Thread
         return keyboardCharCheck(0);
     }
 
-    protected String checkPressedKeys(){  ///!!!!!!!!!!!!!!
+    String checkPressedKeys(){  ///!!!!!!!!!!!!!!
         return checkPressedKeys(0);
     }
     
     // Osobne klawiatury.
-    public boolean keyboardCheck(String key, int player){
+    private boolean keyboardCheck(String key, int player){
         return getKeyboard(player).keyboardCheck(key);
     }
     
@@ -425,43 +407,26 @@ public class Game extends Thread
         return getKeyboard(player).keyboardHoldCheck(key);
     }
     
-    public char keyboardCharCheck(int player) {
+    private char keyboardCharCheck(int player) {
         return getKeyboard(player).keyboardCharCheck();
     }
 
-    protected String checkPressedKeys(int player){
+    private String checkPressedKeys(int player){
         return getKeyboard(player).checkPressedKeys();
     }
     
     //////////////////////////////////////////////////////////////////////
     // Sprawy serwerowe.
     //////////////////////////////////////////////////////////////////////
-    
-//    Callable<Void> callableDisplayConnectedClients = () -> {
-//        displayConnectedClients(packReceivedFromServer);
-//        return null;
-//    };
-    
+
     public Callable<Void> callableStartSever = () -> {
         //halt();
         startServer();
         return null;
     };
 
-    //public Callable<Void> callableStartClient = () -> {
-        //startClient(ipString.value, portString.value, playerNumber.value);
-        //return null;
-    //};
-    
     public void startClient(String addressIP, String port, int playerID){
-        /*clientBrain = new ClientBrain(addressIP, port, port + 1,
-                playerName.value, playerID);
-        clientBrain.start();*/
 
-        //gotoMenu("display_connected_players");
-        //while (true){}  // zablokoowanie programu
-
-        // TODO - odkomentować poniże dwie linijki i wywalić to co powyżej
         clientGame = new ClientGame(gameWindow,gameRenderer,playerName,chosenCharacter);
         clientGame.init();
         
@@ -478,75 +443,11 @@ public class Game extends Thread
         gotoMenu("server_setup");
     }
 
-    protected void  startServer(){
-        int port = new Integer(portString.value);
-        //serverBrain = new ServerBrain(port, port + 1, playersAmount.value);
-        //serverBrain.start();
-
-        /*String temp;
-
-        try{
-            Scanner sc = new Scanner(new File("src\\resources\\KrotnieDane5K.txt"));
-            while (sc.hasNextLine()){
-                if (!ServerBrain.checkIfAllThreadReadPrevPack()){
-                    temp = sc.next();
-                    while (true){
-                        if (!ServerBrain.recPacks.isEmpty()){
-                            temp += "\t\tPressedKey = " + ServerBrain.recPacks.getFirst().getPressedKey();
-                            ServerBrain.recPacks.removeFirst();
-                            break;
-                        }
-                        try{
-                            Thread.sleep(3);
-                        }catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    System.out.println("wpisanie do bufora wysłającego");
-                    ServerBrain.packOut.setAdditionalInfo(temp);
-                    ServerBrain.lockReadingNextPack();                //readPrevPack = true;
-                    ServerBrain.lockBufferingToSend();
-
-                    /*
-                     Im to opóźnienie jest większe, tym mniej pakietów
-                     jest gubionych po drodze. Dla:
-                     10 ms gubionych jest ok 0,225%  - 60 FPS powinno spokojnie pociągnąć
-                     20 ms gubionych jest ok 0,025%  - 30 FPS powinno działać
-                            W sumie to nawet chyba mniej (wydaje mi się, że tylko
-                            pierwszy pakiet)...
-                     50 ms nic nie jest gubione ale działa powoli - max ~15 FPS
-
-                     Czym to jest zasadniczo spowodowane?
-                     Nie jestem pewnien, ale prawie na pewno chodzi o ustawianie i kasowanie
-                     flag w kolekcjach:
-                     sendPrevPack  i  readPrevPack, które są odpowiedzialne za synchronizację
-                     i blokowanie wątków. Niestety nie potrafię sobie z tym poradzić
-                    * */
-                    /*try{
-                        Thread.sleep(20);
-                    }catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            System.out.println("Czytanie z pliku zakończone!");
-        }catch (FileNotFoundException e){
-            System.out.println("=========  Otwieranie pliku nie powiodło się!");
-        }*/
-        //while (true){}      // TODO - wywalić to
-
-        // TODO - odkomentować poniże dwie linijki i wywalić to co powyżej
-        serverGame = new ServerGame(portString,playersAmount);
+    private void  startServer(){
+        serverGame = new ServerGame(playersAmount);
         serverGame.init();
-        /*int port = new Integer(portString.value);
-        listening = true;
-        MyServer server = new MyServer(port, playersAmount.value);*/
     }
 
-    protected void stopServer(){
-        listening = false;
-    }
-    
     //////////////////////////////////////////////////////////////////////
     // Pola obiektu.
     //////////////////////////////////////////////////////////////////////
@@ -565,49 +466,45 @@ public class Game extends Thread
     int max_render_skip;
     
     // Podwykonawcy.
-    ExecutorService executor = Executors.newFixedThreadPool(4);
+    private ExecutorService executor = Executors.newFixedThreadPool(4);
     KeyboardControl keyboardControl = new KeyboardControl(this);
     MenuControl menuControl = new MenuControl(this);
     Random random = new Random();
     
     // Sprawy graficzne.
-    HashMap<String,Image> spriteSheets = new HashMap<>();
+    private HashMap<String,Image> spriteSheets = new HashMap<>();
     ArrayList<Sprite> sprites = new ArrayList();
     JFrame gameWindow;
     JPanel gameRenderer;
     
-    double drawScale;
-    int drawCenterX, drawCenterY;
+    private double drawScale;
+    private int drawCenterX, drawCenterY;
 
     // Wrappery i zmienne samej rozgrywki.
     public StringWrapper playerName;
     public IntWrapper chosenCharacter;
 
     public IntWrapper startingLives;
-    public IntWrapper playersAmount;
+    IntWrapper playersAmount;
     public IntWrapper ghostsAmount;
     
-    public IntWrapper pacmanPlayer;
-    public IntWrapper[] ghostPlayer;
+    IntWrapper pacmanPlayer;
+    IntWrapper[] ghostPlayer;
     
     public ArrayList<IntWrapper> characterBlocked;
     
     int gameScore;
     int gameLives;
-    
-    boolean isPlayedGhostCreated = false;
+
     boolean listening = false;
     
     // Sprawy serwerowe.
     public static volatile IntWrapper playerNumber;
     public static volatile StringWrapper ipString;
     public static volatile StringWrapper portString;
-    ServerGame serverGame;
-    ClientGame clientGame;
-    // ----------------------------------------------
-    ServerBrain serverBrain;
-    ClientBrain clientBrain;
-    
+    private ServerGame serverGame;
+    private ClientGame clientGame;
+
     // PO JEDNYM DLA POŁĄCZONEGO GRACZA!!!
     HashMap <Integer,KeyboardControlRemote> keyboardControlRemote = new HashMap<>();
     HashMap <Integer,Integer> playerNumbers;
@@ -618,19 +515,10 @@ public class Game extends Thread
     //////////////////////////////////////////////////////////////////////
     // Akcesory i inne śmieci.
     //////////////////////////////////////////////////////////////////////
-    
-    public boolean isPlayedGhostCreated(){
-        return isPlayedGhostCreated;
-    }
-    
+
     public void setPlayedGhostCreated(boolean is){
-        isPlayedGhostCreated = is;
     }
-    
-    public boolean isRunning(){
-        return running;
-    }
-    
+
     public void close(){
         running = false;
     }
@@ -686,7 +574,7 @@ public class Game extends Thread
         return spriteSheets.get(name);
     }
     
-    public JFrame getGameWindow() {
+    JFrame getGameWindow() {
         return gameWindow;
     }
     
@@ -697,8 +585,8 @@ public class Game extends Thread
     public ArrayList<Integer> getPlayerIds() {
         ArrayList<Integer> sortedIds = new ArrayList<>();
         for (int id : playerNumbers.keySet()) {
-            if (playerReady.get(id) == true)
-                sortedIds.add(/*playerNumbers.get(id),*/id);
+            if (playerReady.get(id))
+                sortedIds.add(id);
         }
         return sortedIds;
     }

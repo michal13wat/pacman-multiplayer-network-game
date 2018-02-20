@@ -6,12 +6,8 @@ import java.net.Socket;
 
 public class ServerReceiver extends Thread {
 	private Socket socket = null;
-	protected boolean loopdaloop = true;
 
-    private volatile com.brzozaxd.connection.common.PackToSendToServer packIn;
-    //private com.brzozaxd.connection.common.PackToSendToServer prevPackIn = null;
-	
-	public ServerReceiver(Socket socket) {
+	ServerReceiver(Socket socket) {
 		super("EchoServerThread");
 		this.socket = socket;
 	}
@@ -21,14 +17,12 @@ public class ServerReceiver extends Thread {
 		try (
 				ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 		) {
-			//clientID = socket.getRemoteSocketAddress().toString();
 
-			while (loopdaloop){
+			while (true){
                 try {
-                    packIn = (com.brzozaxd.connection.common.PackToSendToServer)in.readObject();
+					com.brzozaxd.connection.common.PackToSendToServer packIn
+							= (com.brzozaxd.connection.common.PackToSendToServer) in.readObject();
                     ServerBrain.recPacks.addLast(packIn);
-                    //System.out.print("Client ID = " + packIn.getPlayersId() + " " + packIn.getPlayersName()
-                    //        + " press button: " + packIn.getPressedKey() + "\n");
                 } catch (IOException | ClassNotFoundException e){
                     e.printStackTrace();
                     break;
@@ -42,11 +36,10 @@ public class ServerReceiver extends Thread {
 				exc.printStackTrace();
 			}
 		}
-
 	}
 
 	// zamykanie polaczenia
-	public void closeSocket(){
+	void closeSocket(){
 		try {
 			this.socket.close();
 		} catch (IOException e) {

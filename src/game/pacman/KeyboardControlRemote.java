@@ -6,7 +6,7 @@ package game.pacman;
 
 public class KeyboardControlRemote extends KeyboardControl {
     
-    public KeyboardControlRemote(Game game) {
+    KeyboardControlRemote(Game game) {
         super(game);
     }
     
@@ -15,7 +15,7 @@ public class KeyboardControlRemote extends KeyboardControl {
         // Tutaj nie mamy żadnych listenerów!!!
     }
     
-    public void feedInput(String keys) {
+    void feedInput(String keys) {
         // Ustawianie na sztywno wciśniętych klawiszy.
         leftPressed = keys.contains("l");
         rightPressed = keys.contains("r");

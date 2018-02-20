@@ -9,28 +9,19 @@ public class ParticleObject extends ActiveObject implements Serializable {
     public void stepEvent() {
         super.stepEvent();
         
-        subimageIndex += imageSpeed;
-        if (subimageIndex >= imageCount) destroy();
+        subImageIndex += imageSpeed;
+        if (subImageIndex >= imageCount) destroy();
     }
     
-    public void setParticle(String sourceImg, int imageWidth, int imageHeight, int imageIndex, int imageCount, double imageSpeed) {
-        setSpriteSheet(sourceImg,imageWidth,imageHeight);
+    void setParticle(int imageIndex, int imageCount, double imageSpeed) {
+        setSpriteSheet("pac_particle_sprites", 16, 16);
         
-        this.subimageIndex = 0;
+        this.subImageIndex = 0;
         
         this.imageIndex = imageIndex;
         this.imageCount = imageCount;
         this.imageSpeed = imageSpeed;
     }
-    
-    /*@Override
-    public boolean sendMe() {
-        if (sent == false) {
-            sent = true;
-            return true;
-        }
-        return false;
-    }*/
     
     private double imageSpeed;
     private int imageCount;

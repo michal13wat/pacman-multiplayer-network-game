@@ -12,15 +12,6 @@ public class DotObject extends CollectibleObject implements Serializable
         pointReward = 1;
         
         imageIndex = 0;
-        subimageIndex = 0;
+        subImageIndex = 0;
     }
-    
-    /*@Override
-    public boolean sendMe() {
-        if (sent == false) {
-            sent = true;
-            return true;
-        }
-        return false;
-    }*/
 }

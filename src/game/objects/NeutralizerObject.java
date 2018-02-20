@@ -12,12 +12,12 @@ public class NeutralizerObject extends CollectibleObject implements Serializable
         pointReward = 0;
         
         imageIndex = 2;
-        subimageIndex = 0;
+        subImageIndex = 0;
     }
     
     @Override
     public void stepEvent() {
-        subimageIndex = (counter%30)/10.0;
+        subImageIndex = (counter%30)/10.0;
         counter ++;
     }
     

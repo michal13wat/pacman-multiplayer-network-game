@@ -31,7 +31,7 @@ public class PlayerTagObject extends TextObject {
     @Override
     public void drawEvent(Graphics2D graphics) {
         
-        if (visible == false)
+        if (!visible)
         {return;}
         
         drawSingleTag(graphics,1,game.chosenCharacter.value);
@@ -43,7 +43,7 @@ public class PlayerTagObject extends TextObject {
         }
     }
     
-    protected void drawSingleTag(Graphics2D graphics, int k, int character) {
+    private void drawSingleTag(Graphics2D graphics, int k, int character) {
         
         if (character == 0)
             for (GameObject o : game.getAllObjects(PacmanObject.class)) {
@@ -68,7 +68,7 @@ public class PlayerTagObject extends TextObject {
             }
     }
     
-    protected void counterStuff() {
+    private void counterStuff() {
         
         //System.out.println(visibleSwitchCounter + " " + invisibleCounter);
         

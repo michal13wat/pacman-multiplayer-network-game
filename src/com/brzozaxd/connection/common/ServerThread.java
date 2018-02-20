@@ -1,8 +1,5 @@
 package com.brzozaxd.connection.common;
 
-/**
- * Created by User on 2017-04-17.
- */
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -12,40 +9,26 @@ import java.nio.channels.SocketChannel;
 
 
 public class ServerThread extends Thread {
-    private static volatile int port;
     private static int threadCnt = 0;
     private int threadNum;
-    private static int connectedClients = 0;
     private static boolean unlock = false;
 
     private static volatile byte[] bytesToSend = null;
     private static volatile PackReceivedFromServer objToSend = null;
-    public static volatile PackToSendToServer objReceived = null;
+    private static volatile PackToSendToServer objReceived = null;
     
-    ObjectOutputStream oos = null;
-    BufferedOutputStream bos = null;
-    ObjectInputStream ois = null;
+    private ObjectOutputStream oos = null;
+    private BufferedOutputStream bos = null;
+    private ObjectInputStream ois = null;
     
-    SocketChannel playerWhiteSocket;
-    static boolean[] verifySendObject = null;
+    private SocketChannel playerWhiteSocket;
+    private static boolean[] verifySendObject = null;
     
-    boolean running = true;
+    private boolean running = true;
 
-    public ServerThread() {
-        threadNum = threadCnt;
-        threadCnt++;
-        verifySendObject = new boolean[MyServer.getClientAmount()];
-        for (int i = 0; i < verifySendObject.length; i++){
-            verifySendObject[i] = false;
-        }
-        
-        setName("SERVER THREAD " + threadNum);
-    }
-
-    public ServerThread(SocketChannel socket, int port) {
+    ServerThread(SocketChannel socket) {
         this.playerWhiteSocket = socket;
-        this.port = port;
-        
+
         threadNum = threadCnt;
         threadCnt++;
         verifySendObject = new boolean[MyServer.getClientAmount()];
@@ -75,14 +58,13 @@ public class ServerThread extends Thread {
             while (running){
                 if (isSentByXThread(threadNum)){
                     System.out.print("Rozopoczynam wysłanie obiektu \n");
-                    sendObject(playerWhiteSocket, objToSend, bytesToSend);
+                    sendObject(bytesToSend);
 
                     threadXSendObject(threadNum);
                     System.out.print("Wysłano obiekt \n");
                 }
                 
-                receiveObject(playerWhiteSocket);
-//                System.out.print("Pętla wątku obierającego nr.: " + threadNum + " \n");
+                receiveObject();
             }
         }
         catch(IOException ex) {
@@ -93,7 +75,7 @@ public class ServerThread extends Thread {
         System.out.println("Zamykamy wątek serwerowy nr. " + threadNum + "!");
     }
     
-    public void stopThread() {
+    void stopThread() {
         running = false;
         try {
             playerWhiteSocket.close();
@@ -101,48 +83,19 @@ public class ServerThread extends Thread {
             bos.close();
             ois.close();
         }
-        catch (Exception e) {}
+        catch (Exception ignored) {}
     }
 
-    private void sendObject(SocketChannel sChannel, PackReceivedFromServer object, byte[] bytes) throws IOException
-    {
+    private void sendObject(byte[] bytes) throws IOException {
         bos.write(bytes);
         bos.flush();
-        //oos.writeObject(object);
-        //oos.flush();
     }
 
-    synchronized private void receiveObject (SocketChannel sChannel)
-    {
+    synchronized private void receiveObject() {
         try {
             objReceived = (PackToSendToServer)ois.readObject();
-            //if (objReceived != null)
-            //{System.out.print("SERWER - Metoda odbierająca... \n");}
-        } catch (IOException | ClassNotFoundException e){
-            // Tutaj cały czas wywala wyjątek związany z timeout-em Socket-a, ale nie należy się tym przejnować.
-            // Niestety zrobiłem to tak trochę dziadowo i właśnie na tej zasadzie to działa...
-//            System.out.print("Błąd serwera - odbieranie obiektu od klienta nie powiodło się!!! \n\n");
-//            e.printStackTrace();
+        } catch (IOException | ClassNotFoundException ignored){
         }
-    }
-
-    // Jeśli obiekt został wysłany przez wyszystkie wątki, to wtedy ustaw kolejny do wysłania
-    public static synchronized void setObjToSend(PackReceivedFromServer objToSend, byte[] bytesToSend) {
-        if (isSent() || unlock){
-            ServerThread.objToSend = objToSend;
-            ServerThread.bytesToSend = bytesToSend;
-            for (int i = 0; i < verifySendObject.length; i++){
-                verifySendObject[i] = true;
-            }
-        }
-    }
-
-    private static synchronized boolean isSent(){
-        for (int i = 0; i < verifySendObject.length; i++){
-            if (verifySendObject[i] == true)
-                return false;
-        }
-        return true;
     }
 
     private static synchronized boolean isSentByXThread(int x){
@@ -151,31 +104,5 @@ public class ServerThread extends Thread {
 
     private static synchronized void threadXSendObject(int x){
         verifySendObject[x] = false;
-    }
-
-    public static synchronized PackToSendToServer getObjReceived() {
-        return objReceived;
-    }
-
-    public static synchronized void setObjReceived(PackToSendToServer objReceived) {
-        ServerThread.objReceived = objReceived;
-    }
-
-    public static void setPort(int port) {
-        ServerThread.port = port;
-    }
-
-    /* Przełącz serwer w tryb blokujący, tj. żeby mógł wysyłać tylko, gdy poprzednie dane roześle do
-     * wszystkich klientów. */
-    public static void setServerIntoLockMode(){
-        unlock = false;
-    }
-
-     public static void setServerIntoUnlockMode(){
-        unlock = true;
-    }
-
-    public static int getConnectedClients() {
-        return connectedClients;
     }
 }

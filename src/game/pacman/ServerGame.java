@@ -7,26 +7,21 @@ import com.brzozaxd.connection.common.PackToSendToServer;
 import com.brzozaxd.connection.server.v2.ServerBrain;
 import game.objects.GameObject;
 import game.objects.LabyrinthObject;
-//import gameObjects.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.URL;
-
 import UI.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-//import _serverV2.*;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 
 public class ServerGame extends Game {
     
-    public ServerGame(StringWrapper portString, IntWrapper playersAmount) {
-        //this.portString = portString;
+    ServerGame(IntWrapper playersAmount) {
         this.playersAmount = playersAmount;
     }
     
@@ -61,15 +56,8 @@ public class ServerGame extends Game {
         server.start();
         
         packOutToClient = new PackReceivedFromServer<>();
-        
-        //gotoMenu("test");
+
         endGame(false);
-        
-        //createObject(TestObject.class);
-        /*TextObject o = (TextObject)createObject(TextObject.class);
-        o.setPosition(0, 0);
-        o.loadFont("pac_font_sprites",8,8);
-        o.setText("AAA");*/
         
         globalCounter = 0;
         System.out.println("Inicjalizacja ServerGame zakończona.");
@@ -143,17 +131,12 @@ public class ServerGame extends Game {
         while (running){
             loops = 0;
             
-            //System.out.println("SERWER - W tej chwili " + objectList.size() + " obiektów.");
-            
             while ((System.currentTimeMillis() > nextStep) && (loops < max_render_skip)) {
                 
                 if (gameStarted) gameStep();
-                
-                //if (ServerBrain.getObjReceived() != null) {
-                    receiveInput();
-                    sendObjects();
-                //}
-                
+                receiveInput();
+                sendObjects();
+
                 nextStep += framesSkip;
                 globalCounter ++;
                 loops ++;
@@ -163,15 +146,15 @@ public class ServerGame extends Game {
         }
         
         try {
-            server.disconnectAll();
+            ServerBrain.disconnectAll();
             server.close();
         }
-        catch (Exception e) {}
+        catch (Exception ignored) {}
         
         System.out.println("Server closing!");
     }
     
-    protected void receiveInput() {
+    private void receiveInput() {
         // odbieranie obiektu
         for (PackToSendToServer pack : ServerBrain.recPacks)
             putToArrayDataReceivedFromServer(pack);
@@ -198,10 +181,8 @@ public class ServerGame extends Game {
             }
            
             servedIds.add(pack.getPlayersId());
-            //System.out.print("SERWER " + ((allReady) ? ("[OK] ") : "") + "- name = " + pack.getPlayersName() + ((pack.isPlayerReady()) ? (" [OK] ") : "")
-            //+ " id = " + pack.getPlayersId() + " character = " + pack.getCharacter() + ", pressedKey = " + pack.getPressedKey() + "\n");
-            
-            if (pack.isPlayerReady() == true)
+
+            if (pack.isPlayerReady())
                 playerReady.put(pack.getPlayersId(), true);
             else
                 playerCharacters.put(pack.getPlayersId(), pack.getCharacter());
@@ -223,7 +204,7 @@ public class ServerGame extends Game {
         }
         
         // Jeżeli wszyscy gracze są gotowi, to zaczynamy.
-        if ((allReady == true) && (gameStarted == false)) {
+        if ((allReady) && (!gameStarted)) {
             
             // Resetowanie postaci.
             pacmanPlayer.value = -1;
@@ -241,31 +222,9 @@ public class ServerGame extends Game {
             System.out.println("SERWER - ZACZYNAMY GRĘ!!!");
             gameStarted = true;
         }
-        
-        // Usunięte gdyż:
-        // Za bardzo zaśmiecało konsolę.
-        
-        /*System.out.print("Name = " + assdfsdf.getObjReceived().getPlayersName()
-                + ", Character = " + assdfsdf.getObjReceived().getCharacter()
-                + ", PressedKey = " + assdfsdf.getObjReceived().getPressedKey() + "\n");*/
-        
-        //assdfsdf.setObjReceived(null);
     }
     
-    protected synchronized void sendObjects() {
-        // symulacja przetwarznia obiektu
-        
-        // Usunięte gdyż:
-        // to tylko symulacja.
-        
-        /*testObj.ilosc = 0;
-        testObj.nazwa = ("asdf " +  assdfsdf.getObjReceived().getPlayersName()
-                + " hwdp " + assdfsdf.getObjReceived().getCharacter()
-                + " jp100 " + assdfsdf.getObjReceived().getPressedKey() );
-        objList.clear();
-        for (int i = 0; i < 4; i ++){
-            objList.add(testObj);
-        }*/
+    private synchronized void sendObjects() {
         
         if (allReady)
         {
@@ -284,7 +243,7 @@ public class ServerGame extends Game {
         }
         
         // Wysyłanie z powrotem wejść od wszystkich klientów.
-        packOutToClient.addFeedbacks(arrayWithDataFromPlayers);
+        packOutToClient.addFeedback(arrayWithDataFromPlayers);
         
         packOutToClient.gameScore = gameScore;
         packOutToClient.gameLives = gameLives;
@@ -305,18 +264,12 @@ public class ServerGame extends Game {
             
             byte[] bytesToSend = bos.toByteArray();
             bos.close();
-            
-            //PackReceivedFromServer packClone = deserialize(bytesToSend);
-            
+
             //Hello h2;
             ByteArrayInputStream bis = new ByteArrayInputStream(bytesToSend);
             ObjectInput in = new ObjectInputStream(bis);
-            PackReceivedFromServer packClone = (PackReceivedFromServer) in.readObject();
             
-            
-            //System.out.println(bytesToSend);
-            
-            ServerBrain.packOut = packClone;
+            ServerBrain.packOut = (PackReceivedFromServer) in.readObject();
             ServerBrain.bytesOut = bytesToSend;
         }
         catch (IOException | ClassNotFoundException ex) {
@@ -324,7 +277,7 @@ public class ServerGame extends Game {
         }
     }
     
-    synchronized protected void putToArrayDataReceivedFromServer
+    private synchronized void putToArrayDataReceivedFromServer
             (PackToSendToServer packReceivedFromclient){
         
         boolean newPlayer = true;
@@ -351,22 +304,16 @@ public class ServerGame extends Game {
         packOutToClient.setAdditionalInfo(packReceivedFromclient.getPressedKey());
     }
     
-    public void stopGame() {
+    void stopGame() {
         running = false;}
-    public boolean isRunning() {
-        return running;}
+
+    private ArrayList<Integer> deletedIds = new ArrayList<>();
+    private ArrayList<PackToSendToServer> arrayWithDataFromPlayers = new ArrayList<>();
+    private PackReceivedFromServer<GameObject> packOutToClient;
     
-    ArrayList<Integer> deletedIds = new ArrayList<>();
-    ArrayList<PackToSendToServer> arrayWithDataFromPlayers = new ArrayList<>();
-    PackReceivedFromServer<GameObject> packOutToClient;
+    private int playersConnected = 0;
+    private boolean gameStarted;
+    private boolean allReady = false;
     
-    // Ten oryginalnie tu był dodany, ale potrzebny był też w ClientGame,
-    // więc przeniosłem go po prostu do Game.
-    //HashMap <Integer,KeyboardControlRemote> keyboardControlRemote;
-    
-    int playersConnected = 0;
-    boolean gameStarted;
-    boolean allReady = false;
-    
-    ServerBrain server;
+    private ServerBrain server;
 }

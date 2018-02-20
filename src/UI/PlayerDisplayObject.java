@@ -5,7 +5,6 @@ package UI;
 import java.awt.Graphics2D;
 
 import game.pacman.ClientGame;
-//import pacman.*;
 
 // Ta klasa służy do rysowania podanych jej danych na temat
 // podłączonych do serwera graczy - tzn. ich numery, nicki i postacie.
@@ -14,7 +13,7 @@ public class PlayerDisplayObject extends TextObject {
     
     @Override
     public void drawEvent(Graphics2D graphics) {
-        if (visible == false)
+        if (!visible)
         {return;}
         ClientGame clientGame = null;
         int playersLockedIn = game.getPlayerIds().size();
@@ -45,8 +44,6 @@ public class PlayerDisplayObject extends TextObject {
             k++;
         }
         
-        //System.out.println("YARE YARE");
-        
         try {
             for (Integer id : game.getPlayerIds()) {
                 
@@ -69,5 +66,5 @@ public class PlayerDisplayObject extends TextObject {
         allConnected = true;
     }
     
-    boolean allConnected = false;
+    private boolean allConnected = false;
 }

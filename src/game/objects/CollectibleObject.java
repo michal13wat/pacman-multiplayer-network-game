@@ -12,13 +12,13 @@ abstract public class CollectibleObject extends ActiveObject implements Serializ
         
         setSpriteSheet("pac_collectible_sprites",16,16);
         
-        bboxLeft = 6;
-        bboxRight = 10;
-        bboxTop = 6;
-        bboxBottom = 10;
+        bBoxLeft = 6;
+        bBoxRight = 10;
+        bBoxTop = 6;
+        bBoxBottom = 10;
         
         imageIndex = 0;
-        subimageIndex = 0;
+        subImageIndex = 0;
     }
     
     @Override
@@ -33,11 +33,11 @@ abstract public class CollectibleObject extends ActiveObject implements Serializ
         
         ParticleObject o = (ParticleObject)createObject(ParticleObject.class,x,y);
         
-        o.setParticle("pac_particle_sprites",16,16,0,4,0.6);
+        o.setParticle(0,4,0.6);
         o.setDepth(-1);
         
         destroy();
     }
     
-    protected int pointReward;
+    int pointReward;
 }
