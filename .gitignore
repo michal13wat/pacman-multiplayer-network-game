@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-/build/
-/dist/
-=======
+
 # Compiled class file
 *.class
 
@@ -24,9 +21,8 @@
 
 /build/
 /dist/
-/.git/
-/.idea/
+.git/
+.idea/
 /out/
 
 *.iml
->>>>>>> master-holder
