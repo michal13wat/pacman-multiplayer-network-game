@@ -2,15 +2,15 @@
 
 ## Przykładowe screeny z gry single player:
 
-![](https://i.imgur.com/uJ54SOO.png)
+![](https://github.com/michal13wat/pacman-multiplayer-network-game/blob/master/img/SinglePlayer.PNG?raw=true)
 
 ## Przykładowe screeny z gry multiplayer
 
-![](https://i.imgur.com/hgGLPTB.png)
+![](https://github.com/michal13wat/pacman-multiplayer-network-game/blob/master/img/Multiplayer.PNG?raw=true)
 
 ## Najprostszy sposób na uruchomienie gry:
 
-Najprostszym i najszybszym sposobem na uruchomienie gry jest zainstalowanie jej poprzez plik: Pacman.msi, po czym uruchomienie z Menu Start -> Pacman.
+Najprostszym i najszybszym sposobem na uruchomienie gry jest zainstalowanie jej poprzez plik: Pacman.msi (który znajduje się w głównym folderze repozytorium), po czym uruchomienie z Menu Start -> Pacman.
 
 ------------------
 
@@ -18,11 +18,7 @@ Najprostszym i najszybszym sposobem na uruchomienie gry jest zainstalowanie jej 
 
 ## 1. Opis gry:
 
-## Gracz może sterować Pac-manem albo duszkiem. ​Jeżeli gracz steruję
-
-Pac-manem, to stara się zebrać wszystkie monety znajdujące się na planszy,
-unikając przy tym duszków, natomiast jeżeli gra duszkiem, to stara się uniemożliwić
-Pac-manowi zjedzenie wszystkich monet.
+Gracz może sterować Pac-manem albo duszkiem. ​Jeżeli gracz steruje Pac-manem, to stara się zebrać wszystkie monety znajdujące się na planszy, unikając przy tym duszków, natomiast jeżeli gra duszkiem, to stara się uniemożliwić Pac-manowi zjedzenie wszystkich monet.
 
 ## 2. Zasady gry:
 
@@ -51,7 +47,7 @@ zjedzenia duszków i usunięcia ich na chwilę z rozgrywki.
 
 - Ekran startowy:
 		
-	![](https://i.imgur.com/J8ypycE.png)
+	![](https://github.com/michal13wat/pacman-multiplayer-network-game/blob/master/img/Menu1.PNG?raw=true)
 
 	- Single Player ​- przejście do menu gry dla jednego gracza
 	- Multi Player ​ - przejście do menu gry wieloosobowej
@@ -60,7 +56,7 @@ zjedzenia duszków i usunięcia ich na chwilę z rozgrywki.
 
 - Menu gry dla jednego gracza:
 	
-	![](https://i.imgur.com/IHNJpPX.png)
+	![](https://github.com/michal13wat/pacman-multiplayer-network-game/blob/master/img/Menu2.PNG?raw=true)
 
 	- Character ​ - wybór postaci którą gracz chce grać
 	- Lives ​ - wybór ilości żyć Pacmana ( od 1 do 5 żyć )
@@ -70,7 +66,7 @@ zjedzenia duszków i usunięcia ich na chwilę z rozgrywki.
 
 - Menu gry dla wielu graczy
 
-	![](https://i.imgur.com/y9t0jAu.png)
+	![](https://github.com/michal13wat/pacman-multiplayer-network-game/blob/master/img/Menu3.PNG?raw=true)
 	
 	- Create Game ​ - utwórz nową grę wieloosobową
 	- Join Game ​ - dołącz do gry
@@ -79,7 +75,7 @@ zjedzenia duszków i usunięcia ich na chwilę z rozgrywki.
 
 ## 5. Tworzenie nowej gry wieloosobowej
 
-![](https://i.imgur.com/nyt7Zh3.png)
+![](https://github.com/michal13wat/pacman-multiplayer-network-game/blob/master/img/CreateGame.PNG?raw=true)
 
 - Start ​ - postawienie serwera, uruchomienie nowej gry wieloosobowej
 - Name ​ - nazwa gracza
@@ -90,7 +86,7 @@ zjedzenia duszków i usunięcia ich na chwilę z rozgrywki.
 
 ## 6. Dołączanie do gry
 
-![](https://i.imgur.com/9IcLCsK.png)
+![](https://github.com/michal13wat/pacman-multiplayer-network-game/blob/master/img/JoinGame.PNG?raw=true)
 
 - Join - dołącz do gry
 - Name​ - nazwa gracza
@@ -108,11 +104,11 @@ Panel Sterowania -> System i zabezpieczenia -> Zapora systemu Windows -> Włącz
 
 Po zakończeniu rozgrywki należy pamiętać o ponownym włączeniu zapory ​, w celu zachowania bezpieczeństwa komputera!
 
-![](https://i.imgur.com/k2eX9dE.png)
+![](https://github.com/michal13wat/pacman-multiplayer-network-game/blob/master/img/zapora.PNG?raw=true)
 
 ## 7. Menu wyboru graczy / ekran oczekiwania (w trybie multiplayer)
 
-![](https://i.imgur.com/3fmFBQR.png)
+![](https://github.com/michal13wat/pacman-multiplayer-network-game/blob/master/img/WaitingScreen.PNG?raw=true)
 
 - Character​ - wybór postaci
 - Ready​ - zatwierdzenie wyboru
